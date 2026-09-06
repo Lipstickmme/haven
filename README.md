@@ -90,6 +90,10 @@ secret decodes to a usable key.
 
 ### 5. Deploy
 
+`vercel.json` pins the install and build commands, so Vercel runs
+`npm ci && npm run build` and picks up the Nitro Build Output API in
+`.vercel/output`.
+
 **Vercel deploys the repository's default branch.** Pushing to `main` when the
 default branch is something else deploys nothing — check
 Settings → Git → Production Branch.
@@ -145,6 +149,23 @@ supabase/
   grant-admin.sql            put a person on the staff list
   verify.sql                 assert the schema is what the app expects
 ```
+
+## If a deploy does not show your changes
+
+Vercel keeps serving the **last successful** deployment when a build fails, so a
+broken build looks exactly like "nothing was deployed". Check the deployment log
+in Vercel first, then:
+
+- **`npm ci` fails with "package.json and package-lock.json are not in sync".**
+  This is the one that bites, because `npm install` locally still works — only
+  `npm ci`, which is what Vercel runs, rejects a drifted lockfile. Fix it with
+  `rm package-lock.json && npm install`, then confirm with a clean checkout:
+  `npm ci && npm run build`. The CI workflow in `.github/workflows/ci.yml` runs
+  exactly that on every push so it fails loudly instead.
+- **The site loads but `/api/health` 404s.** The build did not produce
+  `.vercel/output` — check the build command in Vercel matches `vercel.json`.
+- **Everything renders but chat and the dashboard are off.** That is
+  configuration, not deployment: `/api/health` names the missing variables.
 
 ## Notes for future edits
 
