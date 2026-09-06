@@ -3,8 +3,10 @@ import { useCallback } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
+import arc6 from "@/assets/arc6.webp";
 import { Reveal } from "@/components/site/Reveal";
 import { useFormSubmit } from "@/hooks/useFormSubmit";
+import { CONTACT_DETAILS_FULL } from "@/lib/site";
 import type { SubmitFormInput } from "@/lib/api/forms";
 
 export const Route = createFileRoute("/contact")({
@@ -25,14 +27,6 @@ export const Route = createFileRoute("/contact")({
   }),
   component: Contact,
 });
-
-const DETAILS = [
-  { label: "Website", value: "www.blueprinthaven.com" },
-  { label: "Email Address", value: "info@blueprinthaven.com" },
-  { label: "Phone No", value: "+1-929-647-6610" },
-  { label: "Office Address", value: "54-A Sager Dr, Rochester, NY 14607, United States" },
-  { label: "Studio Hours", value: "Monday – Friday, 09:00 – 18:00 EST" },
-];
 
 const CONSULTATIONS = ["Initial consultation", "Site visit", "Feasibility study", "Design review"];
 
@@ -69,7 +63,13 @@ function Honeypot({
 function Contact() {
   return (
     <>
-      <PageHero eyebrow="Get in touch" title="Tell us about the site" crumb="Contact" />
+      <PageHero
+        eyebrow="Get in touch"
+        title="Tell us about the site"
+        crumb="Contact"
+        image={arc6}
+        lead="Send the brief, the address, or just the question you cannot answer yet. We read everything ourselves."
+      />
 
       <section className="relative bg-background py-24 md:py-32">
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-60" />
@@ -77,7 +77,7 @@ function Contact() {
           <Reveal>
             <p className="eyebrow text-accent">Studio details</p>
             <dl className="mt-10 space-y-9">
-              {DETAILS.map((detail) => (
+              {CONTACT_DETAILS_FULL.map((detail) => (
                 <div key={detail.label} className="border-b border-border pb-6">
                   <dt className="eyebrow text-muted-foreground">{detail.label}</dt>
                   <dd className="mt-3 text-lg">{detail.value}</dd>

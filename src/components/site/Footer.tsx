@@ -1,12 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { CONTACT_DETAILS, SITE } from "@/lib/site";
 import { Logo } from "./Logo";
-
-const DETAILS = [
-  { label: "Website", value: "www.blueprinthaven.com" },
-  { label: "Email Address", value: "info@blueprinthaven.com" },
-  { label: "Phone No", value: "+1-929-647-6610" },
-  { label: "Office Address", value: "54-A Sager Dr, Rochester, NY 14607, United States" },
-];
 
 export function Footer() {
   return (
@@ -19,7 +13,7 @@ export function Footer() {
           </h2>
 
           <dl className="space-y-9">
-            {DETAILS.map((d) => (
+            {CONTACT_DETAILS.map((d) => (
               <div key={d.label}>
                 <dt className="text-sm text-accent">{d.label}</dt>
                 <dd className="mt-2 text-lg text-ink-foreground/90">{d.value}</dd>
@@ -43,7 +37,7 @@ export function Footer() {
               </Link>
             </div>
             <p className="max-w-xs text-sm text-ink-foreground/50">
-              Blueprint Haven Architects 2026. All rights reserved.
+              {SITE.name} 2026. All rights reserved.
             </p>
           </div>
         </div>

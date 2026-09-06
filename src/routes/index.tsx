@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
+import arc5 from "@/assets/arc5.webp";
+import arc6 from "@/assets/arc6.webp";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import about1 from "@/assets/about-1.jpg";
@@ -33,6 +35,8 @@ export const Route = createFileRoute("/")({
 const SLIDES = [
   { src: hero1, title: "Designing Your Dream, Building Your Vision" },
   { src: hero2, title: "Structures That Hold Light and Time" },
+  { src: arc6, title: "Houses That Open to the Evening" },
+  { src: arc5, title: "Quiet Volumes, Carefully Placed" },
 ];
 
 const STATS = [
@@ -133,7 +137,8 @@ function Home() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 bottom-10 z-10 mx-auto flex max-w-[92rem] items-center justify-between px-5 md:px-10">
+        {/* pr-24 keeps the arrows clear of the fixed chat launcher in the corner. */}
+        <div className="absolute inset-x-0 bottom-10 z-10 mx-auto flex max-w-[92rem] items-center justify-between px-5 pr-24 md:px-10 md:pr-28">
           <span className="eyebrow text-ink-foreground/60">
             0{i + 1} <span className="mx-2 opacity-40">/</span> 0{SLIDES.length}
           </span>

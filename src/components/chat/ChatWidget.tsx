@@ -2,6 +2,7 @@ import { MessageSquare, Send, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { useVisitorChat } from "@/hooks/useVisitorChat";
+import { SITE } from "@/lib/site";
 
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -46,19 +47,37 @@ export function ChatWidget() {
           <header className="border-b border-border px-5 py-4">
             <p className="eyebrow text-accent">Blueprint Haven</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {chat.status === "open"
-                ? "We usually reply within a working day."
-                : "Tell us who you are and we'll pick it up from here."}
+              {chat.status === "error"
+                ? "This widget is not connected yet."
+                : chat.status === "open"
+                  ? "We usually reply within a working day."
+                  : "Tell us who you are and we'll pick it up from here."}
             </p>
           </header>
 
-          {chat.error ? (
+          {chat.error && chat.status !== "error" ? (
             <p className="border-b border-border bg-secondary px-5 py-3 text-xs leading-relaxed text-muted-foreground">
               {chat.error}
             </p>
           ) : null}
 
-          {chat.status === "loading" ? (
+          {chat.status === "error" ? (
+            <div className="flex-1 space-y-3 px-5 py-6">
+              <p className="text-sm font-medium text-foreground">Live chat is unavailable</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">{chat.error}</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                In the meantime, email us at{" "}
+                <a href={`mailto:${SITE.email}`} className="text-accent link-underline">
+                  {SITE.email}
+                </a>{" "}
+                or use the{" "}
+                <a href="/contact" className="text-accent link-underline">
+                  contact form
+                </a>
+                .
+              </p>
+            </div>
+          ) : chat.status === "loading" ? (
             <p className="flex-1 px-5 py-6 text-sm text-muted-foreground">Loading…</p>
           ) : chat.status === "open" ? (
             <>
@@ -143,7 +162,7 @@ export function ChatWidget() {
               </div>
               <button
                 type="submit"
-                disabled={chat.sending || chat.status === "error"}
+                disabled={chat.sending}
                 className="eyebrow bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-40"
               >
                 {chat.sending ? "Starting…" : "Start chat"}

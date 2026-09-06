@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import arc2 from "@/assets/arc2.webp";
 import about1 from "@/assets/about-1.jpg";
 import about2 from "@/assets/about-2.jpg";
 
@@ -51,7 +52,13 @@ const TIMELINE = [
 function About() {
   return (
     <>
-      <PageHero eyebrow="The studio" title="Architecture made to age well" crumb="About" />
+      <PageHero
+        eyebrow="The studio"
+        title="Architecture made to age well"
+        crumb="About"
+        image={arc2}
+        lead="Twenty-two years of drawing, detailing and building in Rochester and beyond — a practice organised around the long life of a building rather than the short life of a style."
+      />
 
       <section className="relative bg-background py-24 md:py-32">
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-60" />

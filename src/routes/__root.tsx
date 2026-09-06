@@ -102,7 +102,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Jost:wght@300;400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // SVG first for modern browsers; .ico is the fallback Windows/older UAs want.
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
 
@@ -127,21 +130,24 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function ConfigNotice({ missing }: { missing: PublicConfig["missing"] }) {
+  // Ink, not the light secondary: the header is fixed and transparent at the
+  // top of the page, and its link colour is built for a dark backdrop. The
+  // pt-28 clears the header's own height so the two do not collide.
   return (
-    <div className="border-b border-border bg-secondary px-5 py-4 text-sm text-secondary-foreground md:px-10">
+    <div className="border-b border-ink-foreground/15 bg-ink px-5 pb-6 pt-28 text-sm text-ink-foreground md:px-10">
       <p className="font-medium">
         Chat, the contact form and the dashboard are switched off: this deployment has no Supabase
         configuration.
       </p>
-      <ul className="mt-2 space-y-1 text-muted-foreground">
+      <ul className="mt-2 space-y-1 text-ink-foreground/60">
         {missing.map((entry) => (
           <li key={entry.label}>
-            <span className="text-foreground">{entry.label}</span> — set any one of{" "}
+            <span className="text-ink-foreground">{entry.label}</span> — set any one of{" "}
             <code className="text-xs">{entry.names.join(", ")}</code>
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-muted-foreground">
+      <p className="mt-2 text-ink-foreground/60">
         Add them in Vercel → Settings → Environment Variables and redeploy.{" "}
         <a href="/api/health" className="text-accent link-underline">
           /api/health
@@ -163,9 +169,10 @@ function RootComponent() {
   // is a component.
   setPublicConfig(config);
 
-  // Staff surfaces do not get the visitor widget.
-  const isStaffSurface = pathname.startsWith("/admin") || pathname.startsWith("/auth");
-  const showChat = config.missing.length === 0 && !isStaffSurface;
+  // Staff surfaces do not get the visitor widget. Everywhere else it renders
+  // unconditionally — when Supabase is unconfigured the panel says so, rather
+  // than the launcher quietly not existing.
+  const showChat = !(pathname.startsWith("/admin") || pathname.startsWith("/auth"));
 
   return (
     <QueryClientProvider client={queryClient}>

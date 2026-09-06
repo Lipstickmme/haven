@@ -14,7 +14,8 @@ export function ScrollUp() {
     <button
       aria-label="Scroll back to top"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className={`fixed bottom-10 right-6 z-40 flex flex-col items-center transition-all duration-500 md:right-10 ${
+      // bottom-32 keeps this clear of the chat launcher, which owns the corner.
+      className={`fixed bottom-32 right-6 z-40 flex flex-col items-center transition-all duration-500 md:right-8 ${
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >

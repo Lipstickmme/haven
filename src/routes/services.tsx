@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
+import arc4 from "@/assets/arc4.webp";
 import { Reveal } from "@/components/site/Reveal";
 
 export const Route = createFileRoute("/services")({
@@ -83,7 +84,13 @@ const PROCESS = [
 function Services() {
   return (
     <>
-      <PageHero eyebrow="Capabilities" title="Six disciplines, one drawing set" crumb="Services" />
+      <PageHero
+        eyebrow="Capabilities"
+        title="Six disciplines, one drawing set"
+        crumb="Services"
+        image={arc4}
+        lead="Architecture, interiors, landscape and delivery held in a single coordinated model, so nothing falls between consultants."
+      />
 
       <section className="relative bg-background py-24 md:py-32">
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-60" />
