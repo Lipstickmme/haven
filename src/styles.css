@@ -1,0 +1,161 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "Jost", system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: 0.125rem;
+  --background: oklch(0.982 0.004 92);
+  --foreground: oklch(0.16 0.006 60);
+  --card: oklch(0.995 0.003 92);
+  --card-foreground: oklch(0.16 0.006 60);
+  --primary: oklch(0.18 0.006 60);
+  --primary-foreground: oklch(0.985 0.004 92);
+  --secondary: oklch(0.95 0.008 85);
+  --secondary-foreground: oklch(0.2 0.006 60);
+  --muted: oklch(0.95 0.008 85);
+  --muted-foreground: oklch(0.52 0.01 70);
+  --accent: oklch(0.66 0.075 72);
+  --accent-foreground: oklch(0.16 0.006 60);
+  --destructive: oklch(0.51 0.17 27);
+  --destructive-foreground: oklch(0.985 0.004 92);
+  --ink: oklch(0.15 0.005 60);
+  --ink-foreground: oklch(0.96 0.006 90);
+  --border: oklch(0.9 0.008 85);
+  --input: oklch(0.9 0.008 85);
+  --ring: oklch(0.66 0.075 72);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+}
+
+/* Vertical drafting grid used across sections (like architectural plan lines) */
+@utility plan-grid {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--foreground) 8%, transparent) 0 1px,
+    transparent 1px calc(100% / 7)
+  );
+  background-size: calc(100% / 7) 100%;
+}
+
+@utility plan-grid-dark {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--ink-foreground) 8%, transparent) 0 1px,
+    transparent 1px calc(100% / 7)
+  );
+  background-size: calc(100% / 7) 100%;
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+@utility link-underline {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.25rem;
+    height: 1px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: right;
+    background-color: var(--accent);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1.16);
+  }
+}
+
+@utility kenburns {
+  animation: kenburns 14s ease-out forwards;
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee-track {
+  animation: marquee-x 28s linear infinite;
+}

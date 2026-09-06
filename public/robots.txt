@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Staff surfaces. Also carry <meta name="robots" content="noindex">.
+Disallow: /admin
+Disallow: /auth
+Disallow: /api/

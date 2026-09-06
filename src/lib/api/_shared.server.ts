@@ -1,0 +1,355 @@
+// Server-only. The `.server.ts` suffix keeps this module — and the service-role
+// key it reads — out of the browser bundle. Import it with a dynamic
+// `await import("./_shared.server")` from inside server function handlers and
+// server route handlers, never at the top level of a module the client loads.
+
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+// ---------------------------------------------------------------------------
+// Environment
+// ---------------------------------------------------------------------------
+
+/** First non-empty value among `names`, or undefined. */
+export function env(names: string[]): string | undefined {
+  for (const name of names) {
+    const value = process.env[name];
+    if (typeof value === "string" && value.trim() !== "") return value.trim();
+  }
+  return undefined;
+}
+
+// Every accepted spelling, exported so /api/health can name all of them when
+// one is missing. Connecting Vercel's Supabase integration sets the first
+// group; a hand-rolled .env may use any of the others.
+export const SUPABASE_URL_NAMES = ["SUPABASE_URL", "VITE_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"];
+
+export const SUPABASE_ANON_KEY_NAMES = [
+  "SUPABASE_ANON_KEY",
+  "VITE_SUPABASE_ANON_KEY",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_PUBLISHABLE_KEY",
+  "VITE_SUPABASE_PUBLISHABLE_KEY",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+];
+
+export const SERVICE_ROLE_KEY_NAMES = [
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_SECRET_KEY",
+  "SERVICE_ROLE_KEY",
+];
+
+export const RESEND_API_KEY_NAMES = ["RESEND_API_KEY"];
+export const RESEND_WEBHOOK_SECRET_NAMES = ["RESEND_WEBHOOK_SECRET", "RESEND_SIGNING_SECRET"];
+export const MAIL_DOMAIN_NAMES = ["MAIL_DOMAIN"];
+
+export const SUPABASE_URL = env(SUPABASE_URL_NAMES);
+export const SUPABASE_ANON_KEY = env(SUPABASE_ANON_KEY_NAMES);
+export const SERVICE_ROLE_KEY = env(SERVICE_ROLE_KEY_NAMES);
+export const RESEND_API_KEY = env(RESEND_API_KEY_NAMES);
+export const RESEND_WEBHOOK_SECRET = env(RESEND_WEBHOOK_SECRET_NAMES);
+
+/** One domain drives every address, so there is a single thing to change. */
+export const MAIL_DOMAIN = env(MAIL_DOMAIN_NAMES) ?? "example.com";
+export const MAIL_FROM = env(["MAIL_FROM"]) ?? `Blueprint Haven <no-reply@${MAIL_DOMAIN}>`;
+export const MAIL_REPLY_TO = env(["MAIL_REPLY_TO"]) ?? `hello@${MAIL_DOMAIN}`;
+/** Where visitor notifications land. Never point this back at MAIL_DOMAIN's
+ *  own inbound route, or mail loops through the webhook until quota runs out. */
+export const MAIL_NOTIFY_TO = env(["MAIL_NOTIFY_TO", "NOTIFY_TO", "STAFF_EMAIL"]) ?? MAIL_REPLY_TO;
+
+// ---------------------------------------------------------------------------
+// Supabase
+// ---------------------------------------------------------------------------
+
+let cachedAdminClient: SupabaseClient | undefined;
+
+/** Service-role client. Bypasses RLS — server code only. */
+export function adminClient(): SupabaseClient {
+  if (cachedAdminClient) return cachedAdminClient;
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    throw new Error(
+      `Supabase is not configured on the server. Set ${SUPABASE_URL_NAMES[0]} and ${SERVICE_ROLE_KEY_NAMES[0]} in your deployment environment (Vercel → Settings → Environment Variables). See /api/health for what this server can currently see.`,
+    );
+  }
+  cachedAdminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return cachedAdminClient;
+}
+
+// ---------------------------------------------------------------------------
+// Resend
+// ---------------------------------------------------------------------------
+
+export type SendEmailOptions = {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text?: string;
+  from?: string;
+  replyTo?: string;
+  /** Message-Id of the mail being answered; sets In-Reply-To and References. */
+  inReplyTo?: string;
+};
+
+/**
+ * Returns the Resend message id, or null when no API key is set. Notification
+ * mail is a side effect of a form submission — losing it must not turn a
+ * successful write into a failed request, so this reports rather than throws.
+ */
+export async function sendEmail(options: SendEmailOptions): Promise<string | null> {
+  if (!RESEND_API_KEY) {
+    console.warn("[mail] RESEND_API_KEY is unset — skipping send:", options.subject);
+    return null;
+  }
+
+  const payload: Record<string, unknown> = {
+    from: options.from ?? MAIL_FROM,
+    to: Array.isArray(options.to) ? options.to : [options.to],
+    subject: options.subject,
+    html: options.html,
+  };
+  if (options.text) payload["text"] = options.text;
+  if (options.replyTo) payload["reply_to"] = options.replyTo;
+  if (options.inReplyTo) {
+    payload["headers"] = {
+      "In-Reply-To": options.inReplyTo,
+      References: options.inReplyTo,
+    };
+  }
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const body = (await response.json().catch(() => null)) as {
+    id?: string;
+    message?: string;
+  } | null;
+  if (!response.ok) {
+    throw new Error(
+      `Resend rejected the send (${response.status}): ${body?.message ?? "unknown error"}`,
+    );
+  }
+  return body?.id ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// Admin authentication
+// ---------------------------------------------------------------------------
+
+export type AdminIdentity = { userId: string; email: string };
+
+/**
+ * Validates the caller's bearer token by asking Supabase Auth — not by
+ * decoding the JWT locally, which proves nothing about the signature — then
+ * confirms the user is on the `admins` list using the service role.
+ */
+export async function requireAdmin(request: Request): Promise<AdminIdentity> {
+  const header = request.headers.get("authorization") ?? "";
+  const match = /^Bearer\s+(\S+)$/i.exec(header);
+  const token = match?.[1];
+  if (!token) throw new Error("Unauthorized: no bearer token on the request.");
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error(
+      `Supabase is not configured on the server. Set ${SUPABASE_URL_NAMES[0]} and ${SUPABASE_ANON_KEY_NAMES[0]}.`,
+    );
+  }
+
+  const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data, error } = await authClient.auth.getUser(token);
+  if (error || !data?.user) throw new Error("Unauthorized: the session token is not valid.");
+
+  // Anonymous visitors hold a real auth.uid() for chat RLS. They are never staff.
+  if (data.user.is_anonymous)
+    throw new Error("Unauthorized: anonymous sessions cannot use the dashboard.");
+
+  const { data: row, error: lookupError } = await adminClient()
+    .from("admins")
+    .select("user_id, email")
+    .eq("user_id", data.user.id)
+    .maybeSingle();
+
+  if (lookupError) throw new Error(`Could not check the admin list: ${lookupError.message}`);
+  if (!row) throw new Error("Forbidden: this account is not on the admin list.");
+
+  return { userId: data.user.id, email: data.user.email ?? String(row["email"] ?? "") };
+}
+
+// ---------------------------------------------------------------------------
+// Resend webhook signatures (Svix)
+// ---------------------------------------------------------------------------
+
+export type WebhookVerification = { ok: true } | { ok: false; reason: string };
+
+const WEBHOOK_TOLERANCE_SECONDS = 300;
+
+/** Base64 body of a `whsec_`-prefixed Svix secret, as raw key bytes. */
+export function decodeWebhookSecret(secret: string): Buffer | null {
+  const body = secret.startsWith("whsec_") ? secret.slice("whsec_".length) : secret;
+  try {
+    const key = Buffer.from(body, "base64");
+    return key.length > 0 ? key : null;
+  } catch {
+    return null;
+  }
+}
+
+function pickHeader(headers: Headers, ...names: string[]): string | null {
+  for (const name of names) {
+    const value = headers.get(name);
+    if (value) return value;
+  }
+  return null;
+}
+
+/**
+ * Svix HMAC-SHA256 over `${id}.${timestamp}.${rawBody}`. Returns a reason on
+ * failure rather than a bare false, so the route can log why a delivery was
+ * dropped instead of guessing.
+ */
+export function verifyResendWebhook(rawBody: string, headers: Headers): WebhookVerification {
+  if (!RESEND_WEBHOOK_SECRET) {
+    return { ok: false, reason: `${RESEND_WEBHOOK_SECRET_NAMES[0]} is not set on this server.` };
+  }
+  const key = decodeWebhookSecret(RESEND_WEBHOOK_SECRET);
+  if (!key) {
+    return {
+      ok: false,
+      reason: `${RESEND_WEBHOOK_SECRET_NAMES[0]} did not base64-decode to a usable key.`,
+    };
+  }
+
+  // Resend sends svix-* names; some proxies normalise them to webhook-*.
+  const id = pickHeader(headers, "svix-id", "webhook-id");
+  const timestamp = pickHeader(headers, "svix-timestamp", "webhook-timestamp");
+  const signature = pickHeader(headers, "svix-signature", "webhook-signature");
+
+  const missing = [
+    ...(id ? [] : ["svix-id"]),
+    ...(timestamp ? [] : ["svix-timestamp"]),
+    ...(signature ? [] : ["svix-signature"]),
+  ];
+  if (missing.length > 0 || !id || !timestamp || !signature) {
+    return { ok: false, reason: `missing signature header(s): ${missing.join(", ")}` };
+  }
+
+  const sentAt = Number(timestamp);
+  if (!Number.isFinite(sentAt)) {
+    return { ok: false, reason: `timestamp header is not a unix time: ${timestamp}` };
+  }
+  const skew = Math.abs(Date.now() / 1000 - sentAt);
+  if (skew > WEBHOOK_TOLERANCE_SECONDS) {
+    return {
+      ok: false,
+      reason: `timestamp is ${Math.round(skew)}s away from now, outside the ${WEBHOOK_TOLERANCE_SECONDS}s window`,
+    };
+  }
+
+  const expected = createHmac("sha256", key).update(`${id}.${timestamp}.${rawBody}`).digest();
+
+  // The header carries one or more space-separated `v1,<base64>` versions.
+  for (const part of signature.split(" ")) {
+    const [version, value] = part.split(",");
+    if (version !== "v1" || !value) continue;
+    let candidate: Buffer;
+    try {
+      candidate = Buffer.from(value, "base64");
+    } catch {
+      continue;
+    }
+    if (candidate.length === expected.length && timingSafeEqual(candidate, expected)) {
+      return { ok: true };
+    }
+  }
+
+  return { ok: false, reason: "no v1 signature in the header matched the computed digest" };
+}
+
+// ---------------------------------------------------------------------------
+// Small helpers
+// ---------------------------------------------------------------------------
+
+/** Trimmed string, capped at `max`. Non-strings become "". */
+export function text(value: unknown, max: number): string {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, max);
+}
+
+export function isEmail(value: unknown): value is string {
+  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+}
+
+export function escapeHtml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export function json(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
+}
+
+export function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+
+/** `"Jane Doe <jane@example.com>"` → `{ name: "Jane Doe", email: "jane@example.com" }` */
+export function parseAddress(value: unknown): { name: string | null; email: string } {
+  const raw = text(value, 320);
+  const angled = /^(.*)<([^>]+)>\s*$/.exec(raw);
+  if (angled) {
+    const name = (angled[1] ?? "").trim().replace(/^["']|["']$/g, "");
+    return { name: name || null, email: (angled[2] ?? "").trim().toLowerCase() };
+  }
+  return { name: null, email: raw.toLowerCase() };
+}
+
+/** Strips any run of `Re:` / `Fwd:` / `Fw:` prefixes so replies thread. */
+export function normaliseSubject(value: unknown): string {
+  let subject = text(value, 500);
+  let previous: string;
+  do {
+    previous = subject;
+    subject = subject.replace(/^\s*(re|fwd|fw)\s*(\[\d+\])?\s*:\s*/i, "");
+  } while (subject !== previous);
+  return subject.trim();
+}
+
+/** A plain, readable HTML notification body from label/value rows. */
+export function emailBody(heading: string, rows: Array<[string, string]>, footer?: string): string {
+  const cells = rows
+    .filter(([, value]) => value !== "")
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 16px 6px 0;color:#6b7280;white-space:nowrap;vertical-align:top">${escapeHtml(label)}</td><td style="padding:6px 0;color:#111827">${escapeHtml(value).replace(/\n/g, "<br />")}</td></tr>`,
+    )
+    .join("");
+
+  return `<div style="font:15px/1.6 system-ui,-apple-system,sans-serif;color:#111827">
+  <h2 style="font-size:17px;margin:0 0 16px">${escapeHtml(heading)}</h2>
+  <table style="border-collapse:collapse">${cells}</table>
+  ${footer ? `<p style="margin:20px 0 0;color:#6b7280;font-size:13px">${escapeHtml(footer)}</p>` : ""}
+</div>`;
+}
