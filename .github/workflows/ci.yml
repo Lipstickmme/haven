@@ -15,10 +15,17 @@ jobs:
           node-version: 22
           cache: npm
 
-      # `npm ci` is exactly what Vercel runs. It refuses to install when
-      # package-lock.json has drifted from package.json — which once broke every
-      # deploy silently, because Vercel just keeps serving the last good build.
-      # Failing here makes that loud instead.
+      # Vercel's build image ships npm 11, but Node 22 bundles npm 10 — and the
+      # two disagree about lockfiles. npm 10 records only the current platform's
+      # optional binaries (@tailwindcss/oxide-*, rolldown bindings); npm 11
+      # requires every platform variant and hard-fails on `npm ci` without them.
+      # Pin 11 here so CI validates against the same, stricter resolver Vercel
+      # uses, instead of passing locally and breaking the deploy.
+      - run: npm install -g npm@11
+
+      # Strict on purpose: no `|| npm install` fallback. vercel.json has that
+      # fallback so a drifted lockfile can never take the site down; this step
+      # is what makes the drift visible.
       - run: npm ci
 
       - run: npm run typecheck

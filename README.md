@@ -157,11 +157,20 @@ broken build looks exactly like "nothing was deployed". Check the deployment log
 in Vercel first, then:
 
 - **`npm ci` fails with "package.json and package-lock.json are not in sync".**
-  This is the one that bites, because `npm install` locally still works — only
-  `npm ci`, which is what Vercel runs, rejects a drifted lockfile. Fix it with
-  `rm package-lock.json && npm install`, then confirm with a clean checkout:
-  `npm ci && npm run build`. The CI workflow in `.github/workflows/ci.yml` runs
-  exactly that on every push so it fails loudly instead.
+  This one is nasty, because it can pass locally and still fail on Vercel.
+  Vercel's image runs **npm 11**; Node 22 bundles **npm 10**. npm 10 writes a
+  lockfile carrying only the current platform's optional binaries
+  (`@tailwindcss/oxide-*`, rolldown bindings), while npm 11 demands every
+  platform variant and refuses to install without them.
+
+  Always regenerate the lockfile with npm 11 — `rm -rf node_modules
+package-lock.json && npx npm@11 install` — and verify with
+  `npx npm@11 ci && npm run build`. A lockfile written by npm 11 is a superset
+  that npm 10 also accepts; the reverse is not true. `.github/workflows/ci.yml`
+  pins npm 11 and runs a strict `npm ci` so this fails in CI rather than in a
+  deploy. `vercel.json` additionally falls back to `npm install`, so drift can
+  never take the live site down again.
+
 - **The site loads but `/api/health` 404s.** The build did not produce
   `.vercel/output` — check the build command in Vercel matches `vercel.json`.
 - **Everything renders but chat and the dashboard are off.** That is
