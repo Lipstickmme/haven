@@ -7,13 +7,13 @@ import { Reveal } from "@/components/site/Reveal";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Blueprint Haven Architects" },
+      { title: "Services — Meastro Architecture" },
       {
         name: "description",
         content:
           "Architectural design, interior architecture, masterplanning, sustainability consulting, visualisation and site supervision.",
       },
-      { property: "og:title", content: "Services — Blueprint Haven Architects" },
+      { property: "og:title", content: "Services — Meastro Architecture" },
       {
         property: "og:description",
         content: "Six disciplines, from first sketch to final site inspection.",
@@ -125,13 +125,13 @@ function Services() {
         <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
         <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
-            <p className="eyebrow text-accent">How we work</p>
+            <p className="eyebrow text-accent-ink">How we work</p>
             <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">From brief to handover</h2>
           </Reveal>
           <div className="mt-16 grid gap-10 md:grid-cols-4">
             {PROCESS.map((p, i) => (
               <Reveal key={p.n} delay={i * 110} className="border-t border-ink-foreground/25 pt-8">
-                <p className="eyebrow text-accent">{p.n}</p>
+                <p className="eyebrow text-accent-ink">{p.n}</p>
                 <h3 className="mt-5 text-2xl">{p.title}</h3>
                 <p className="mt-3 text-ink-foreground/60">{p.body}</p>
               </Reveal>
@@ -140,7 +140,7 @@ function Services() {
           <Reveal delay={200}>
             <Link
               to="/contact"
-              className="mt-16 inline-flex items-center gap-4 border border-ink-foreground/40 px-9 py-4 eyebrow transition-colors hover:border-accent hover:text-accent"
+              className="mt-16 inline-flex items-center gap-4 border border-ink-foreground/40 px-9 py-4 eyebrow transition-colors hover:border-accent-ink hover:text-accent-ink"
             >
               Request a proposal
               <ArrowUpRight size={16} strokeWidth={1.4} />

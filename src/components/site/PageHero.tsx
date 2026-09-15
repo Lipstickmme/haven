@@ -27,14 +27,14 @@ export function PageHero({
             height={576}
             className="kenburns absolute inset-0 h-full w-full object-cover"
           />
-          {/* Scrim: the headline has to stay legible over any photograph. */}
-          <div className="absolute inset-0 bg-ink/70" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/60" />
+          {/* Weighted to the left, where the text is, instead of a flat wash
+              over the whole photograph. */}
+          <div className="page-hero-scrim absolute inset-0" />
         </>
       ) : null}
       <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
       <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
-        <p className="eyebrow text-accent">{eyebrow}</p>
+        <p className="eyebrow text-accent-ink">{eyebrow}</p>
         <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] md:text-7xl">{title}</h1>
         {lead ? (
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-foreground/70">{lead}</p>

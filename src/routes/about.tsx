@@ -2,19 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import arc2 from "@/assets/arc2.webp";
-import about1 from "@/assets/about-1.jpg";
+import arc5 from "@/assets/arc5.webp";
 import about2 from "@/assets/about-2.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Blueprint Haven Architects" },
+      { title: "About — Meastro Architecture" },
       {
         name: "description",
         content:
           "A studio of 62 architects, designers and researchers building calm, durable, low-carbon architecture.",
       },
-      { property: "og:title", content: "About Blueprint Haven Architects" },
+      { property: "og:title", content: "About Meastro Architecture" },
       {
         property: "og:description",
         content: "A studio building calm, durable, low-carbon architecture since 2004.",
@@ -73,7 +73,7 @@ function About() {
               className="w-[80%] object-cover"
             />
             <img
-              src={about1}
+              src={arc5}
               alt="Amber pendant lights against linen curtains"
               loading="lazy"
               width={900}
@@ -87,10 +87,10 @@ function About() {
               We draw slowly so buildings can be built quickly
             </h2>
             <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
-              Blueprint Haven works across housing, culture and hospitality. Each project begins
-              with a week of looking: sun paths, sightlines, the noise of the street at seven in the
-              morning. What follows is a set of drawings precise enough that the contractor never
-              has to guess.
+              Meastro Architecture works across housing, culture and hospitality. Each project
+              begins with a week of looking: sun paths, sightlines, the noise of the street at seven
+              in the morning. What follows is a set of drawings precise enough that the contractor
+              never has to guess.
             </p>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
               We keep the team deliberately mixed — architects beside interior designers,

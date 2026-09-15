@@ -6,7 +6,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff sign in — Blueprint Haven Architects" },
+      { title: "Staff sign in — Meastro Architecture" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -32,7 +32,7 @@ function AuthPage() {
     <section className="relative flex min-h-screen items-center bg-background py-32">
       <div className="pointer-events-none absolute inset-0 plan-grid opacity-60" />
       <div className="relative mx-auto w-full max-w-md px-5 md:px-10">
-        <p className="eyebrow text-accent">Blueprint Haven</p>
+        <p className="eyebrow text-accent">Meastro Architecture</p>
         <h1 className="mt-4 font-display text-4xl">Staff sign in</h1>
         <p className="mt-3 text-sm text-muted-foreground">
           For the studio dashboard. Visitors do not need an account — the chat widget signs itself

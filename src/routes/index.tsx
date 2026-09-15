@@ -2,26 +2,26 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
+import { HeroShutter } from "@/components/site/HeroShutter";
+import { ProjectImage } from "@/components/site/ProjectImage";
+import { PROJECTS, coverFor } from "@/lib/projects";
+import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
 import arc6 from "@/assets/arc6.webp";
-import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
-import about1 from "@/assets/about-1.jpg";
+import arc4 from "@/assets/arc4.webp";
 import about2 from "@/assets/about-2.jpg";
-import project1 from "@/assets/project-1.jpg";
-import project2 from "@/assets/project-2.jpg";
-import project3 from "@/assets/project-3.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Blueprint Haven Architects — Architecture & Interior Design" },
+      { title: "Meastro Architecture — Architecture & Interior Design" },
       {
         name: "description",
         content:
           "Award-winning architecture and interior design studio crafting spaces that balance beauty, function and sustainability.",
       },
-      { property: "og:title", content: "Blueprint Haven Architects" },
+      { property: "og:title", content: "Meastro Architecture" },
       {
         property: "og:description",
         content:
@@ -32,11 +32,12 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+/** Exteriors only. The hero is the practice's shopfront; it shows buildings. */
 const SLIDES = [
-  { src: hero1, title: "Designing Your Dream, Building Your Vision" },
+  { src: arc6, title: "Designing Your Dream, Building Your Vision" },
   { src: hero2, title: "Structures That Hold Light and Time" },
-  { src: arc6, title: "Houses That Open to the Evening" },
   { src: arc5, title: "Quiet Volumes, Carefully Placed" },
+  { src: arc2, title: "Civic Rooms Built to Outlast Us" },
 ];
 
 const STATS = [
@@ -75,11 +76,8 @@ const SERVICES = [
   },
 ];
 
-const FEATURED = [
-  { src: project1, title: "Solstice Penthouse", meta: "Residential · New York" },
-  { src: project2, title: "Fold Museum Annex", meta: "Cultural · Rotterdam" },
-  { src: project3, title: "Travertine House Hotel", meta: "Hospitality · Lisbon" },
-];
+/** Three built projects, straight from the project record. */
+const FEATURED = PROJECTS.filter((p) => p.status === "Built").slice(0, 3);
 
 function Home() {
   const [i, setI] = useState(0);
@@ -95,27 +93,17 @@ function Home() {
     <>
       {/* Hero slider */}
       <section className="relative h-[100svh] overflow-hidden bg-ink">
-        {SLIDES.map((s, idx) => (
-          <div
-            key={s.title}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              idx === i ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <img
-              src={s.src}
-              alt={s.title}
-              width={1920}
-              height={1080}
-              className={`h-full w-full object-cover ${idx === i ? "kenburns" : ""}`}
-            />
-            <div className="absolute inset-0 bg-ink/55" />
-          </div>
-        ))}
+        <HeroShutter slides={SLIDES} index={i} />
+        {/* Down from a flat bg-ink/55: the scrim is now weighted behind the
+            headline so the building reads at close to full contrast. */}
+        <div className="hero-scrim pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
 
         <div className="relative z-10 mx-auto flex h-full max-w-[92rem] flex-col justify-center px-5 text-center md:px-10">
-          <p className="eyebrow text-accent">Architecture · Interiors · Since 2004</p>
+          {/* Near-white rather than coffee: this kicker sits directly on the
+              photograph, where the brand brown drops to about 2:1. The accent
+              still carries every section on a solid ground. */}
+          <p className="eyebrow text-ink-foreground/85">Architecture · Interiors · Since 2004</p>
           <h1
             key={i}
             className="mx-auto mt-8 max-w-5xl animate-fade-in font-display text-[2.75rem] leading-[1.02] text-ink-foreground md:text-[5.5rem]"
@@ -125,7 +113,7 @@ function Home() {
           <div className="mt-12 flex justify-center">
             <Link
               to="/projects"
-              className="group inline-flex items-center gap-4 border border-ink-foreground/40 px-8 py-4 eyebrow text-ink-foreground transition-colors hover:border-accent hover:text-accent"
+              className="group inline-flex items-center gap-4 border border-ink-foreground/40 px-8 py-4 eyebrow text-ink-foreground transition-colors hover:border-accent-ink hover:text-accent-ink"
             >
               View Selected Work
               <ArrowUpRight
@@ -148,7 +136,7 @@ function Home() {
                 key={d}
                 aria-label={d === -1 ? "Previous slide" : "Next slide"}
                 onClick={() => go(d)}
-                className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-foreground/40 text-ink-foreground transition-colors hover:border-accent hover:text-accent"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-ink-foreground/40 text-ink-foreground transition-colors hover:border-accent-ink hover:text-accent-ink"
               >
                 {d === -1 ? (
                   <ArrowLeft size={18} strokeWidth={1.3} />
@@ -167,7 +155,7 @@ function Home() {
         <div className="relative mx-auto grid max-w-[92rem] gap-16 px-5 md:px-10 lg:grid-cols-2 lg:items-center">
           <Reveal className="relative">
             <img
-              src={about1}
+              src={arc4}
               alt="Amber glass pendant lights in a warm interior"
               loading="lazy"
               width={900}
@@ -186,9 +174,7 @@ function Home() {
 
           <Reveal delay={120} className="lg:pl-6">
             <p className="eyebrow text-accent">About the studio</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">
-              About Blueprint Haven Architects
-            </h2>
+            <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">About Meastro Architecture</h2>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
               We are an architecture and interior design studio drawn to clarity: rooms that hold
               daylight well, plans that make sense at walking speed, and details that will still
@@ -275,22 +261,26 @@ function Home() {
 
           <div className="mt-16 grid gap-10 md:grid-cols-3">
             {FEATURED.map((p, idx) => (
-              <Reveal key={p.title} delay={idx * 120}>
-                <Link to="/projects" className="group block">
+              <Reveal key={p.slug} delay={idx * 120}>
+                <Link
+                  to="/projects/$slug"
+                  params={{ slug: p.slug }}
+                  className="card-lift card-rule group block pb-5 hover:card-rule-active"
+                >
                   <div className="overflow-hidden">
-                    <img
-                      src={p.src}
+                    <ProjectImage
+                      src={coverFor(p)}
                       alt={p.title}
-                      loading="lazy"
-                      width={1200}
-                      height={900}
-                      className="aspect-4/3 w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
+                      label={p.title}
+                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     />
                   </div>
                   <h3 className="mt-6 text-2xl transition-colors group-hover:text-accent">
                     {p.title}
                   </h3>
-                  <p className="mt-2 eyebrow text-muted-foreground">{p.meta}</p>
+                  <p className="mt-2 eyebrow text-muted-foreground">
+                    {p.category} · {p.place}
+                  </p>
                 </Link>
               </Reveal>
             ))}

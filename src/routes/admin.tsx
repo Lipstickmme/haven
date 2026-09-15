@@ -5,12 +5,13 @@ import { BookingsTab } from "@/components/admin/BookingsTab";
 import { ChatTab } from "@/components/admin/ChatTab";
 import { EmailTab } from "@/components/admin/EmailTab";
 import { EnquiriesTab } from "@/components/admin/EnquiriesTab";
+import { SettingsTab } from "@/components/admin/SettingsTab";
 import { useAdminAuth, type AdminAuth } from "@/hooks/useAdminAuth";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Studio dashboard — Blueprint Haven Architects" },
+      { title: "Studio dashboard — Meastro Architecture" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -22,6 +23,7 @@ const TABS = [
   { id: "chat", label: "Live chat" },
   { id: "email", label: "Email" },
   { id: "bookings", label: "Bookings" },
+  { id: "settings", label: "Settings" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -104,6 +106,7 @@ function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => void 
           {tab === "chat" ? <ChatTab enabled /> : null}
           {tab === "email" ? <EmailTab enabled /> : null}
           {tab === "bookings" ? <BookingsTab enabled /> : null}
+          {tab === "settings" ? <SettingsTab enabled /> : null}
         </div>
       </div>
     </section>

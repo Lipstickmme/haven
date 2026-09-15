@@ -23,6 +23,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-ink: var(--accent-ink);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-ink: var(--ink);
@@ -34,25 +35,30 @@
 
 :root {
   --radius: 0.125rem;
-  --background: oklch(0.982 0.004 92);
-  --foreground: oklch(0.16 0.006 60);
-  --card: oklch(0.995 0.003 92);
-  --card-foreground: oklch(0.16 0.006 60);
-  --primary: oklch(0.18 0.006 60);
-  --primary-foreground: oklch(0.985 0.004 92);
-  --secondary: oklch(0.95 0.008 85);
-  --secondary-foreground: oklch(0.2 0.006 60);
-  --muted: oklch(0.95 0.008 85);
-  --muted-foreground: oklch(0.52 0.01 70);
-  --accent: oklch(0.66 0.075 72);
-  --accent-foreground: oklch(0.16 0.006 60);
+
+  /* White and grey ground, coffee brown accent. Two coffees: --accent is for
+     light surfaces, --accent-ink for the dark bands — a single mid-brown
+     cannot clear 4.5:1 against both white and near-black. */
+  --background: oklch(0.988 0.002 95); /* #fbfbfa */
+  --foreground: oklch(0.24 0.01 60); /* #231e1b  15.9:1 on background */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.01 60);
+  --primary: oklch(0.3 0.032 52); /* #3b291f  dark coffee */
+  --primary-foreground: oklch(0.985 0.004 90);
+  --secondary: oklch(0.958 0.004 85); /* #f2f1ee  light grey */
+  --secondary-foreground: oklch(0.24 0.01 60);
+  --muted: oklch(0.958 0.004 85);
+  --muted-foreground: oklch(0.505 0.012 58); /* #6a635e  5.7:1 */
+  --accent: oklch(0.52 0.072 55); /* #895e40  5.4:1 on background */
+  --accent-foreground: oklch(0.985 0.004 90);
+  --accent-ink: oklch(0.74 0.062 58); /* #c9a284  7.0:1 on ink */
+  --ink: oklch(0.245 0.018 52); /* #281e19  warm near-black */
+  --ink-foreground: oklch(0.955 0.004 85);
   --destructive: oklch(0.51 0.17 27);
   --destructive-foreground: oklch(0.985 0.004 92);
-  --ink: oklch(0.15 0.005 60);
-  --ink-foreground: oklch(0.96 0.006 90);
-  --border: oklch(0.9 0.008 85);
-  --input: oklch(0.9 0.008 85);
-  --ring: oklch(0.66 0.075 72);
+  --border: oklch(0.9 0.005 80); /* #e0deda */
+  --input: oklch(0.9 0.005 80);
+  --ring: oklch(0.52 0.072 55);
 }
 
 @layer base {
@@ -158,4 +164,117 @@
 
 @utility marquee-track {
   animation: marquee-x 28s linear infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Hero shutter
+   The hero already reads as a drafting grid of seven vertical lines. The slide
+   change rides that grid: each slat wipes down in turn, so the image arrives
+   like a shutter opening rather than a crossfade.
+--------------------------------------------------------------------------- */
+@utility shutter-slat {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: clip-path;
+}
+
+@utility shutter-slat-open {
+  clip-path: inset(0 0 0 0);
+}
+
+/* A hairline between slats keeps the shutter legible once it is open. */
+@utility shutter-seam {
+  box-shadow: inset -1px 0 0 color-mix(in oklab, var(--ink-foreground) 14%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Cards
+   A small lift and a coffee rule that draws itself. Subtle on purpose: the
+   photography should move, not the furniture around it.
+--------------------------------------------------------------------------- */
+@utility card-lift {
+  transition:
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--foreground) 45%, transparent);
+  }
+}
+
+@utility card-rule {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background-color: var(--accent);
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@utility card-rule-active {
+  &::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Respect a reduced-motion preference: keep the state changes, drop the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .shutter-slat,
+  .shutter-slat-open {
+    transition-duration: 1ms !important;
+  }
+  .card-lift:hover {
+    transform: none;
+  }
+  .kenburns {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Scrims
+   Weighted where the text sits rather than flat across the photograph, so the
+   buildings read at close to full contrast and the headline still clears 4.5:1.
+--------------------------------------------------------------------------- */
+@utility hero-scrim {
+  background:
+    /* Behind the headline block. */
+    radial-gradient(
+      ellipse 74% 64% at 50% 42%,
+      color-mix(in oklab, var(--ink) 66%, transparent),
+      transparent 74%
+    ),
+    /* Under the header, which is transparent over the hero. */
+      linear-gradient(to bottom, color-mix(in oklab, var(--ink) 55%, transparent), transparent 18%),
+    /* Under the slide counter and arrows. */
+      linear-gradient(to top, color-mix(in oklab, var(--ink) 50%, transparent), transparent 34%);
+}
+
+@utility page-hero-scrim {
+  background:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ink) 80%, transparent) 0%,
+      color-mix(in oklab, var(--ink) 42%, transparent) 46%,
+      transparent 82%
+    ),
+    linear-gradient(to top, color-mix(in oklab, var(--ink) 40%, transparent), transparent 58%);
+}
+
+/* A reserved frame: hatching reads at any width, which a centred label does
+   not once the before/after slider crops it to a sliver. */
+@utility placeholder-hatch {
+  background-color: var(--secondary);
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--foreground) 5%, transparent) 0 1px,
+    transparent 1px 11px
+  );
 }

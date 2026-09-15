@@ -12,6 +12,8 @@ import { type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { loadPublicConfig, setPublicConfig, type PublicConfig } from "../lib/public-config";
+import { loadSiteSettings } from "../lib/site-settings";
+import { SiteSettingsProvider } from "@/components/site/SiteSettingsContext";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ScrollUp } from "@/components/site/ScrollUp";
@@ -77,17 +79,20 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   // The browser's Supabase config is delivered at runtime, from here — never
   // inlined at build time behind a VITE_ prefix. One build, any project.
-  loader: () => loadPublicConfig(),
+  loader: async () => {
+    const [config, settings] = await Promise.all([loadPublicConfig(), loadSiteSettings()]);
+    return { config, settings };
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Blueprint Haven Architects" },
+      { title: "Meastro Architecture" },
       {
         name: "description",
         content: "Architecture and interior design studio based in Rochester, New York.",
       },
-      { name: "author", content: "Blueprint Haven Architects" },
+      { name: "author", content: "Meastro Architecture" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -160,7 +165,7 @@ function ConfigNotice({ missing }: { missing: PublicConfig["missing"] }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const config = Route.useLoaderData();
+  const { config, settings } = Route.useLoaderData();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   // Set before any child renders, so anything reaching for `supabase` during
@@ -176,15 +181,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {config.missing.length > 0 ? <ConfigNotice missing={config.missing} /> : null}
-      <Header />
-      <main>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </main>
-      <Footer />
-      <ScrollUp />
-      {showChat ? <ChatWidget /> : null}
+      <SiteSettingsProvider value={settings}>
+        {config.missing.length > 0 ? <ConfigNotice missing={config.missing} /> : null}
+        <Header />
+        <main>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+        <Footer />
+        <ScrollUp />
+        {showChat ? <ChatWidget /> : null}
+      </SiteSettingsProvider>
     </QueryClientProvider>
   );
 }

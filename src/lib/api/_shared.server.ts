@@ -51,7 +51,7 @@ export const RESEND_WEBHOOK_SECRET = env(RESEND_WEBHOOK_SECRET_NAMES);
 
 /** One domain drives every address, so there is a single thing to change. */
 export const MAIL_DOMAIN = env(MAIL_DOMAIN_NAMES) ?? "example.com";
-export const MAIL_FROM = env(["MAIL_FROM"]) ?? `Blueprint Haven <no-reply@${MAIL_DOMAIN}>`;
+export const MAIL_FROM = env(["MAIL_FROM"]) ?? `Meastro Architecture <no-reply@${MAIL_DOMAIN}>`;
 export const MAIL_REPLY_TO = env(["MAIL_REPLY_TO"]) ?? `hello@${MAIL_DOMAIN}`;
 /** Where visitor notifications land. Never point this back at MAIL_DOMAIN's
  *  own inbound route, or mail loops through the webhook until quota runs out. */

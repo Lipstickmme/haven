@@ -14,7 +14,7 @@ declare
 
   -- expected: table name
   core_tables text[] := array[
-    'admins', 'enquiries', 'bookings', 'chat_sessions', 'chat_messages'
+    'admins', 'enquiries', 'bookings', 'chat_sessions', 'chat_messages', 'site_settings'
   ];
   email_tables text[] := array['email_threads', 'email_messages'];
 
@@ -33,7 +33,9 @@ declare
     'chat_messages.chat_messages_visitor_insert',
     'chat_messages.chat_messages_visitor_select',
     'chat_messages.chat_messages_admin_select',
-    'chat_messages.chat_messages_admin_insert'
+    'chat_messages.chat_messages_admin_insert',
+    'site_settings.site_settings_public_select',
+    'site_settings.site_settings_admin_update'
   ];
   email_policies text[] := array[
     'email_threads.email_threads_admin_select',
@@ -45,11 +47,12 @@ declare
   core_triggers text[] := array[
     'enquiries.enquiries_touch_updated_at',
     'bookings.bookings_touch_updated_at',
-    'chat_messages.chat_messages_touch_session'
+    'chat_messages.chat_messages_touch_session',
+    'site_settings.site_settings_touch_updated_at'
   ];
   email_triggers text[] := array['email_messages.email_messages_touch_thread'];
 
-  core_realtime text[] := array['chat_sessions', 'chat_messages', 'bookings'];
+  core_realtime text[] := array['chat_sessions', 'chat_messages', 'bookings', 'site_settings'];
   email_realtime text[] := array['email_threads', 'email_messages'];
 
   core_functions text[] := array['is_admin', 'touch_updated_at', 'touch_chat_session'];

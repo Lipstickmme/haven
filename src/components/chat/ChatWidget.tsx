@@ -2,11 +2,12 @@ import { MessageSquare, Send, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { useVisitorChat } from "@/hooks/useVisitorChat";
-import { SITE } from "@/lib/site";
+import { useSiteSettings } from "@/components/site/SiteSettingsContext";
 
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const chat = useVisitorChat();
+  const settings = useSiteSettings();
   const [draft, setDraft] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,7 +46,7 @@ export function ChatWidget() {
       {open ? (
         <div className="fixed bottom-24 right-6 z-50 flex h-[30rem] w-[min(22rem,calc(100vw-3rem))] flex-col border border-border bg-card shadow-2xl">
           <header className="border-b border-border px-5 py-4">
-            <p className="eyebrow text-accent">Blueprint Haven</p>
+            <p className="eyebrow text-accent">Meastro Architecture</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {chat.status === "error"
                 ? "This widget is not connected yet."
@@ -67,8 +68,8 @@ export function ChatWidget() {
               <p className="text-xs leading-relaxed text-muted-foreground">{chat.error}</p>
               <p className="text-xs leading-relaxed text-muted-foreground">
                 In the meantime, email us at{" "}
-                <a href={`mailto:${SITE.email}`} className="text-accent link-underline">
-                  {SITE.email}
+                <a href={`mailto:${settings.email}`} className="text-accent link-underline">
+                  {settings.email}
                 </a>{" "}
                 or use the{" "}
                 <a href="/contact" className="text-accent link-underline">

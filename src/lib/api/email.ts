@@ -44,7 +44,7 @@ export const sendEmailReply = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const inReplyTo = newestInbound?.["message_id"] as string | null | undefined;
-    const baseSubject = String(thread["subject"] ?? "").trim() || "Blueprint Haven";
+    const baseSubject = String(thread["subject"] ?? "").trim() || "Meastro Architecture";
     const subject = /^re:/i.test(baseSubject) ? baseSubject : `Re: ${baseSubject}`;
     const to = String(thread["participant_email"] ?? "");
 

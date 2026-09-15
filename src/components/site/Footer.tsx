@@ -1,8 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { CONTACT_DETAILS, SITE } from "@/lib/site";
+import { contactDetails, SITE } from "@/lib/site";
+import { useSiteSettings } from "./SiteSettingsContext";
 import { Logo } from "./Logo";
 
 export function Footer() {
+  const settings = useSiteSettings();
+  const details = contactDetails(settings);
+
   return (
     <footer className="relative overflow-hidden bg-ink text-ink-foreground">
       <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
@@ -13,9 +17,9 @@ export function Footer() {
           </h2>
 
           <dl className="space-y-9">
-            {CONTACT_DETAILS.map((d) => (
+            {details.map((d) => (
               <div key={d.label}>
-                <dt className="text-sm text-accent">{d.label}</dt>
+                <dt className="text-sm text-accent-ink">{d.label}</dt>
                 <dd className="mt-2 text-lg text-ink-foreground/90">{d.value}</dd>
               </div>
             ))}
@@ -26,13 +30,13 @@ export function Footer() {
               <Logo />
             </div>
             <div className="flex gap-6 eyebrow text-ink-foreground/60">
-              <Link to="/contact" className="hover:text-accent">
+              <Link to="/contact" className="hover:text-accent-ink">
                 Terms
               </Link>
-              <Link to="/contact" className="hover:text-accent">
+              <Link to="/contact" className="hover:text-accent-ink">
                 Condition
               </Link>
-              <Link to="/contact" className="hover:text-accent">
+              <Link to="/contact" className="hover:text-accent-ink">
                 Policy
               </Link>
             </div>

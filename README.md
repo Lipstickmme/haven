@@ -1,4 +1,4 @@
-# Blueprint Haven — site, chat and studio dashboard
+# Meastro Architecture — site, chat and studio dashboard
 
 A TanStack Start (SSR) app on Vercel, backed by Supabase and Resend. The public
 site carries a visitor chat widget and a contact/booking form; `/admin` is a
@@ -45,10 +45,11 @@ at**, which is not necessarily the one last opened in the dashboard — open
 
 In the Supabase SQL editor, run in order:
 
-| File                                 | Needed for                                                  |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `supabase/migrations/0001_init.sql`  | everything: admins, enquiries, bookings, chat               |
-| `supabase/migrations/0002_email.sql` | optional — only to receive mail through the inbound webhook |
+| File                                         | Needed for                                                  |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| `supabase/migrations/0001_init.sql`          | everything: admins, enquiries, bookings, chat               |
+| `supabase/migrations/0002_email.sql`         | optional — only to receive mail through the inbound webhook |
+| `supabase/migrations/0003_site_settings.sql` | the contact details the Settings tab edits                  |
 
 Both are guarded and re-runnable: applying them twice is a no-op, not an error.
 
@@ -75,7 +76,7 @@ In Vercel → **Settings → Environment Variables** (Production _and_ Preview).
 | `RESEND_API_KEY`            | **server only**     | no       | Sends notifications and email replies. Unset means mail is skipped and logged; nothing else breaks.                                    |
 | `RESEND_WEBHOOK_SECRET`     | **server only**     | no       | `whsec_…` Svix signing secret for `/api/inbound-email`. Required only to receive mail.                                                 |
 | `MAIL_DOMAIN`               | server only         | no       | One domain drives every address below.                                                                                                 |
-| `MAIL_FROM`                 | server only         | no       | Defaults to `Blueprint Haven <no-reply@$MAIL_DOMAIN>`.                                                                                 |
+| `MAIL_FROM`                 | server only         | no       | Defaults to `Meastro Architecture <no-reply@$MAIL_DOMAIN>`.                                                                            |
 | `MAIL_REPLY_TO`             | server only         | no       | Defaults to `hello@$MAIL_DOMAIN`.                                                                                                      |
 | `MAIL_NOTIFY_TO`            | server only         | no       | Where visitor notifications land. Defaults to `MAIL_REPLY_TO`.                                                                         |
 
@@ -97,6 +98,32 @@ secret decodes to a usable key.
 **Vercel deploys the repository's default branch.** Pushing to `main` when the
 default branch is something else deploys nothing — check
 Settings → Git → Production Branch.
+
+## Project photography
+
+Each project has a profile page at `/projects/<slug>` carrying a before/after
+comparison and four details of the building. Images live at:
+
+```
+src/assets/projects/<slug>/before.webp
+src/assets/projects/<slug>/after.webp
+src/assets/projects/<slug>/part-1.webp … part-4.webp
+src/assets/projects/<slug>/cover.webp   (optional; falls back to after.webp)
+```
+
+`src/lib/projects.ts` globs that directory, so committing a file is all it takes
+— there is no manifest to update. A frame that has not been shot renders as a
+hatched panel labelled with the part name, so a half-photographed project still
+looks deliberate.
+
+`docs/image-prompts.md` carries a generation prompt and a caption for all 120
+frames, plus the house style and negative prompt.
+
+## Editable contact details
+
+The footer and contact page read `site_settings`, editable from the **Settings**
+tab of `/admin` — no redeploy. `src/lib/site.ts` holds the fallbacks used when
+the row or the table is missing, so the block never renders blank.
 
 ## Receiving email (optional)
 

@@ -1,28 +1,41 @@
 /**
- * One source of truth for the studio's contact details. The footer and the
- * contact page both render these; keeping two copies is how they drift.
+ * Defaults for the studio's identity and contact details.
+ *
+ * Contact rows are editable from the dashboard (Settings tab) and stored in
+ * `site_settings`; these values are the fallback used when that row is absent
+ * or the database is unreachable, so the footer never renders blank.
  */
 export const SITE = {
-  name: "Blueprint Haven Architects",
-  shortName: "Blueprint Haven",
-  domain: "blueprinthavenltd.com",
-  website: "www.blueprinthavenltd.com",
-  email: "info@blueprinthavenltd.com",
-  phone: "+1-929-647-6610",
-  address: "54-A Sager Dr, Rochester, NY 14607, United States",
-  hours: "Monday – Friday, 09:00 – 18:00 EST",
+  name: "Meastro Architecture",
+  shortName: "Meastro",
+  domain: "meastroarchitecture.com",
+  website: "www.meastroarchitecture.com",
+  email: "frontdesk@meastroarchitecture.com",
+  hours: "Monday – Friday, 09:00 – 18:00",
 } as const;
 
-/** Rows for the footer — no studio hours, it already runs long. */
-export const CONTACT_DETAILS = [
-  { label: "Website", value: SITE.website },
-  { label: "Email Address", value: SITE.email },
-  { label: "Phone No", value: SITE.phone },
-  { label: "Office Address", value: SITE.address },
-] as const;
+/** The editable subset. Keys match the columns of `site_settings`. */
+export type SiteSettings = {
+  email: string;
+  website: string;
+  hours: string;
+};
 
-/** Rows for the contact page, which has room for opening hours too. */
-export const CONTACT_DETAILS_FULL = [
-  ...CONTACT_DETAILS,
-  { label: "Studio Hours", value: SITE.hours },
-] as const;
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  email: SITE.email,
+  website: SITE.website,
+  hours: SITE.hours,
+};
+
+/** Footer rows — website and email only, it already runs long. */
+export function contactDetails(settings: SiteSettings) {
+  return [
+    { label: "Website", value: settings.website },
+    { label: "Email Address", value: settings.email },
+  ];
+}
+
+/** Contact page rows, which have room for opening hours too. */
+export function contactDetailsFull(settings: SiteSettings) {
+  return [...contactDetails(settings), { label: "Studio Hours", value: settings.hours }];
+}

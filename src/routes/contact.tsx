@@ -6,19 +6,20 @@ import { PageHero } from "@/components/site/PageHero";
 import arc6 from "@/assets/arc6.webp";
 import { Reveal } from "@/components/site/Reveal";
 import { useFormSubmit } from "@/hooks/useFormSubmit";
-import { CONTACT_DETAILS_FULL } from "@/lib/site";
+import { contactDetailsFull } from "@/lib/site";
+import { useSiteSettings } from "@/components/site/SiteSettingsContext";
 import type { SubmitFormInput } from "@/lib/api/forms";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Blueprint Haven Architects" },
+      { title: "Contact — Meastro Architecture" },
       {
         name: "description",
         content:
-          "Talk to Blueprint Haven Architects in Rochester, NY about your site, brief or feasibility study.",
+          "Talk to Meastro Architecture in Rochester, NY about your site, brief or feasibility study.",
       },
-      { property: "og:title", content: "Contact Blueprint Haven Architects" },
+      { property: "og:title", content: "Contact Meastro Architecture" },
       {
         property: "og:description",
         content: "Rochester, NY studio — tell us about your site and brief.",
@@ -61,6 +62,8 @@ function Honeypot({
 }
 
 function Contact() {
+  const details = contactDetailsFull(useSiteSettings());
+
   return (
     <>
       <PageHero
@@ -77,7 +80,7 @@ function Contact() {
           <Reveal>
             <p className="eyebrow text-accent">Studio details</p>
             <dl className="mt-10 space-y-9">
-              {CONTACT_DETAILS_FULL.map((detail) => (
+              {details.map((detail) => (
                 <div key={detail.label} className="border-b border-border pb-6">
                   <dt className="eyebrow text-muted-foreground">{detail.label}</dt>
                   <dd className="mt-3 text-lg">{detail.value}</dd>
