@@ -112,7 +112,8 @@ src/assets/projects/<slug>/cover.webp   (optional; falls back to after.webp)
 ```
 
 `src/lib/projects.ts` globs that directory, so committing a file is all it takes
-— there is no manifest to update. A frame that has not been shot renders as a
+— there is no manifest to update. The glob resolves at build time, so the image
+appears once the site rebuilds; a push does that automatically. A frame that has not been shot renders as a
 hatched panel labelled with the part name, so a half-photographed project still
 looks deliberate.
 

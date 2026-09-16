@@ -21,6 +21,24 @@ before/after pairs.** Shoot each before/after pair from as close to the same
 position and focal length as you can — the site cross-fades them under a
 drag handle, and a matched viewpoint is what makes that read.
 
+## Adding a photograph
+
+1. Create the folder if it does not exist: `src/assets/projects/<slug>/`
+2. Drop the file in, named by role: `before`, `after`, `part-1` … `part-4`,
+   or `cover`.
+3. Commit and push. Vercel rebuilds and the frame replaces its placeholder.
+
+`.webp`, `.jpg`, `.jpeg`, `.png` and `.avif` all work. WebP at quality 82 is
+what the existing imagery uses.
+
+**The glob runs at build time, not in the browser.** Copying a file onto the
+server does nothing on its own — the image has to be committed and the site
+rebuilt, which a push does automatically. Run `npm run dev` to preview locally
+before pushing.
+
+You do not need to touch `src/lib/projects.ts`. Nothing lists the files; the
+directory is the manifest.
+
 ## House style — append to every prompt
 
 ```

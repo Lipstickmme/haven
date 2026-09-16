@@ -94,10 +94,10 @@ function Home() {
       {/* Hero slider */}
       <section className="relative h-[100svh] overflow-hidden bg-ink">
         <HeroShutter slides={SLIDES} index={i} />
-        {/* Down from a flat bg-ink/55: the scrim is now weighted behind the
-            headline so the building reads at close to full contrast. */}
-        <div className="hero-scrim pointer-events-none absolute inset-0" />
-        <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
+        {/* z-3: the shutter's slides paint at z-index 1 and 2, so an unlayered
+            overlay lands underneath the photograph and does nothing. */}
+        <div className="hero-scrim pointer-events-none absolute inset-0 z-3" />
+        <div className="plan-grid-dark pointer-events-none absolute inset-0 z-3" />
 
         <div className="relative z-10 mx-auto flex h-full max-w-[92rem] flex-col justify-center px-5 text-center md:px-10">
           {/* Near-white rather than coffee: this kicker sits directly on the

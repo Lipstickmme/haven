@@ -244,17 +244,29 @@
    buildings read at close to full contrast and the headline still clears 4.5:1.
 --------------------------------------------------------------------------- */
 @utility hero-scrim {
+  /* The landing hero carries centred white text over whatever photograph is in
+     the carousel, including bright sky. Measured across all four slides, the
+     11px kicker and button label were landing at 2.0–3.9:1; these layers lift
+     them past 4.5:1 on every slide.
+
+     Layered rather than flat so the building still shows: the base wash is
+     light and the ellipse concentrates density on the text block only. The
+     flat wash is last because in the `background` shorthand a bare colour is
+     only valid as the final layer — anywhere else the whole declaration is
+     dropped. */
   background:
-    /* Behind the headline block. */
+    /* Behind the headline block — composites with the base wash to roughly the
+       80% that page-hero-scrim gives the other pages at their text edge. */
     radial-gradient(
-      ellipse 74% 64% at 50% 42%,
-      color-mix(in oklab, var(--ink) 66%, transparent),
-      transparent 74%
+      ellipse 78% 70% at 50% 44%,
+      color-mix(in oklab, var(--ink) 68%, transparent),
+      transparent 78%
     ),
     /* Under the header, which is transparent over the hero. */
-      linear-gradient(to bottom, color-mix(in oklab, var(--ink) 55%, transparent), transparent 18%),
+      linear-gradient(to bottom, color-mix(in oklab, var(--ink) 58%, transparent), transparent 20%),
     /* Under the slide counter and arrows. */
-      linear-gradient(to top, color-mix(in oklab, var(--ink) 50%, transparent), transparent 34%);
+      linear-gradient(to top, color-mix(in oklab, var(--ink) 52%, transparent), transparent 34%),
+    /* Base wash across the whole frame. */ color-mix(in oklab, var(--ink) 40%, transparent);
 }
 
 @utility page-hero-scrim {
