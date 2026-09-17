@@ -1,22 +1,40 @@
-export function Logo() {
+import logoDark from "@/assets/brand/logo-dark.webp";
+import logoLight from "@/assets/brand/logo-light.webp";
+import markDark from "@/assets/brand/mark-dark.webp";
+import markLight from "@/assets/brand/mark-light.webp";
+
+/**
+ * The studio lockup. Flat artwork rather than a tinted SVG, because the
+ * monogram is a knockout — the building shows through the M — which
+ * `currentColor` cannot express.
+ *
+ * `tone` names the surface, not the ink: "light" is the pale artwork for dark
+ * grounds, "dark" the black artwork for pale ones.
+ *
+ * `variant` is "mark" in the header, where the stacked lockup would squeeze the
+ * wordmark to a few illegible pixels, and "full" wherever there is height for it.
+ */
+export function Logo({
+  tone = "dark",
+  variant = "full",
+}: {
+  tone?: "light" | "dark";
+  variant?: "mark" | "full";
+}) {
+  const mark = variant === "mark";
+  const src = mark
+    ? tone === "light"
+      ? markLight
+      : markDark
+    : tone === "light"
+      ? logoLight
+      : logoDark;
+
   return (
-    <span className="flex items-center gap-3">
-      <svg
-        width="26"
-        height="30"
-        viewBox="0 0 26 30"
-        fill="none"
-        aria-hidden="true"
-        className="shrink-0"
-      >
-        <path d="M1 29V6l6-4v27" fill="currentColor" />
-        <path d="M9 29V4l7 4v21" fill="currentColor" opacity="0.65" />
-        <path d="M18 29V10l7 5v14" fill="currentColor" opacity="0.35" />
-      </svg>
-      <span className="leading-none">
-        <span className="block text-[0.8rem] font-semibold tracking-[0.14em]">MEASTRO</span>
-        <span className="eyebrow mt-1 block opacity-70">Architecture</span>
-      </span>
-    </span>
+    <img
+      src={src}
+      alt="Meastro Architecture"
+      className={mark ? "h-10 w-auto md:h-11" : "h-20 w-auto md:h-24"}
+    />
   );
 }

@@ -2,9 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { BeforeAfter } from "@/components/site/BeforeAfter";
-import { ProjectImage } from "@/components/site/ProjectImage";
 import { Reveal } from "@/components/site/Reveal";
-import { PROJECTS, coverFor, projectBySlug, projectImage, type ImageRole } from "@/lib/projects";
+import { PROJECTS, coverFor, partsWithImages, projectBySlug, projectImage } from "@/lib/projects";
 
 export const Route = createFileRoute("/projects_/$slug")({
   loader: ({ params }) => {
@@ -27,8 +26,6 @@ export const Route = createFileRoute("/projects_/$slug")({
   component: ProjectProfile,
 });
 
-const PART_ROLES: ImageRole[] = ["part-1", "part-2", "part-3", "part-4"];
-
 function ProjectProfile() {
   const { slug } = Route.useLoaderData();
   const project = projectBySlug(slug)!;
@@ -36,6 +33,10 @@ function ProjectProfile() {
   const index = PROJECTS.findIndex((p) => p.slug === slug);
   const prev = PROJECTS[(index - 1 + PROJECTS.length) % PROJECTS.length]!;
   const next = PROJECTS[(index + 1) % PROJECTS.length]!;
+
+  const before = projectImage(project.slug, "before");
+  const after = projectImage(project.slug, "after") ?? coverFor(project);
+  const parts = partsWithImages(project);
 
   const facts = [
     { label: "Type", value: project.category },
@@ -114,56 +115,82 @@ function ProjectProfile() {
       </section>
 
       {/* Before and after ------------------------------------------------ */}
-      <section className="border-t border-border bg-secondary py-20 md:py-28">
-        <div className="mx-auto max-w-[92rem] px-5 md:px-10">
-          <Reveal>
-            <p className="eyebrow text-accent">Before and after</p>
-            <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight md:text-4xl">
-              What was here, and what is here now.
-            </h2>
-          </Reveal>
-          <Reveal delay={120} className="mt-10">
-            <BeforeAfter
-              title={project.title}
-              before={projectImage(project.slug, "before")}
-              after={projectImage(project.slug, "after") ?? coverFor(project)}
-              beforeCaption={project.beforeCaption}
-              afterCaption={project.afterCaption}
-            />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Parts of the building ------------------------------------------- */}
-      <section className="bg-background py-20 md:py-28">
-        <div className="mx-auto max-w-[92rem] px-5 md:px-10">
-          <Reveal>
-            <p className="eyebrow text-accent">Parts of the building</p>
-          </Reveal>
-          <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-            {project.parts.map((part, i) => (
-              <Reveal key={part.title} delay={i * 90}>
-                <figure className="card-lift card-rule group m-0 pb-5">
-                  <div className="overflow-hidden">
-                    <ProjectImage
-                      src={projectImage(project.slug, PART_ROLES[i] ?? "part-1")}
-                      alt={`${project.title} — ${part.title}`}
-                      label={part.title}
-                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-                    />
-                  </div>
-                  <figcaption className="mt-5">
-                    <h3 className="text-lg">{part.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {part.caption}
-                    </p>
+      {before || after ? (
+        <section className="border-t border-border bg-secondary py-20 md:py-28">
+          <div className="mx-auto max-w-[92rem] px-5 md:px-10">
+            <Reveal>
+              <p className="eyebrow text-accent">
+                {before && after ? "Before and after" : "The building"}
+              </p>
+              <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight md:text-4xl">
+                {before && after
+                  ? "What was here, and what is here now."
+                  : before
+                    ? "The site as we found it."
+                    : "The building as completed."}
+              </h2>
+            </Reveal>
+            <Reveal delay={120} className="mt-10">
+              {before && after ? (
+                <BeforeAfter
+                  title={project.title}
+                  before={before}
+                  after={after}
+                  beforeCaption={project.beforeCaption}
+                  afterCaption={project.afterCaption}
+                />
+              ) : (
+                <figure className="m-0">
+                  <img
+                    src={(before ?? after)!}
+                    alt={project.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-16/9 w-full object-cover"
+                  />
+                  <figcaption className="mt-5 text-sm text-muted-foreground">
+                    {before ? project.beforeCaption : project.afterCaption}
                   </figcaption>
                 </figure>
-              </Reveal>
-            ))}
+              )}
+            </Reveal>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
+
+      {/* Parts of the building ------------------------------------------- */}
+      {parts.length > 0 ? (
+        <section className="bg-background py-20 md:py-28">
+          <div className="mx-auto max-w-[92rem] px-5 md:px-10">
+            <Reveal>
+              <p className="eyebrow text-accent">Parts of the building</p>
+            </Reveal>
+            <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+              {parts.map((part, i) => (
+                <Reveal key={part.title} delay={i * 90}>
+                  <figure className="card-lift card-rule group m-0 pb-5">
+                    <div className="overflow-hidden">
+                      <img
+                        src={part.src}
+                        alt={`${project.title} — ${part.title}`}
+                        loading="lazy"
+                        decoding="async"
+                        className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      />
+                    </div>
+                    <figcaption className="mt-5">
+                      <h3 className="text-lg">{part.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {part.caption}
+                      </p>
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Neighbours ------------------------------------------------------ */}
       <section className="border-t border-border bg-background py-16">

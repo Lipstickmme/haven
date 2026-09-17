@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, Search, X } from "lucide-react";
 import { Logo } from "./Logo";
@@ -14,6 +14,13 @@ const NAV = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  // Every public page opens on a dark hero band, so the header can float
+  // transparently over it. The staff surfaces open on white, where a
+  // transparent header renders near-white text on white — so pin it solid.
+  const onPaleSurface = pathname.startsWith("/admin") || pathname.startsWith("/auth");
+  const solid = scrolled || open || onPaleSurface;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -25,14 +32,14 @@ export function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-background/85 backdrop-blur-xl border-b border-border text-foreground"
+        solid
+          ? "border-b border-border bg-background/90 text-foreground backdrop-blur-xl"
           : "bg-transparent text-ink-foreground"
       }`}
     >
       <div className="mx-auto flex h-20 max-w-[92rem] items-center justify-between px-5 md:px-10">
         <Link to="/" className="text-current" onClick={() => setOpen(false)}>
-          <Logo />
+          <Logo tone={solid ? "dark" : "light"} variant="mark" />
         </Link>
 
         <nav className="hidden items-center gap-9 lg:flex">

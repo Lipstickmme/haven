@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 
@@ -6,36 +6,37 @@ export type RealtimeRows<T> = {
   rows: T[];
   loading: boolean;
   error: string | null;
+  /** False when the realtime channel is not subscribed; the list then polls. */
+  live: boolean;
   refresh: () => void;
 };
 
 type Options = {
-  /** Column to sort on, newest first. */
   orderBy: string;
-  /** Skip everything until the caller is actually an admin. */
   enabled: boolean;
-  /** Narrow to one parent row, e.g. `{ column: "session_id", value: id }`. */
   filter?: { column: string; value: string };
   ascending?: boolean;
 };
 
-/**
- * A table's rows plus a live subscription to it. Every dashboard tab is the
- * same shape: read once, then let postgres_changes keep it current.
- */
+/** Safety net when realtime is healthy, and the actual transport when it is not. */
+const POLL_LIVE_MS = 20000;
+const POLL_FALLBACK_MS = 4000;
+
 export function useRealtimeRows<T extends { id: string }>(
   table: string,
   options: Options,
 ): RealtimeRows<T> {
   const { orderBy, enabled, filter, ascending = false } = options;
-  // Destructured so the effects depend on stable primitives, not a fresh
-  // object literal on every render.
   const filterColumn = filter?.column;
   const filterValue = filter?.value;
+
   const [rows, setRows] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [live, setLive] = useState(false);
   const [nonce, setNonce] = useState(0);
+  // Only the first load shows a spinner; polls must not flash the list.
+  const loadedOnce = useRef(false);
 
   const refresh = useCallback(() => setNonce((value) => value + 1), []);
 
@@ -47,7 +48,7 @@ export function useRealtimeRows<T extends { id: string }>(
     }
 
     let cancelled = false;
-    setLoading(true);
+    if (!loadedOnce.current) setLoading(true);
 
     void (async () => {
       let query = supabase.from(table).select("*").order(orderBy, { ascending });
@@ -61,6 +62,7 @@ export function useRealtimeRows<T extends { id: string }>(
         setError(null);
         setRows((data ?? []) as T[]);
       }
+      loadedOnce.current = true;
       setLoading(false);
     })();
 
@@ -102,12 +104,29 @@ export function useRealtimeRows<T extends { id: string }>(
           });
         },
       )
-      .subscribe();
+      // Without this callback a CHANNEL_ERROR or TIMED_OUT is swallowed and the
+      // list silently stops updating while still looking healthy.
+      .subscribe((status, err) => {
+        setLive(status === "SUBSCRIBED");
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn(`[realtime] ${table} channel ${status}`, err ?? "");
+        }
+      });
 
     return () => {
+      setLive(false);
       void supabase.removeChannel(channel);
     };
   }, [table, filterColumn, filterValue, enabled, orderBy, ascending]);
 
-  return { rows, loading, error, refresh };
+  // Poll regardless: slowly as a safety net when the channel is subscribed,
+  // quickly when it is not, so the dashboard keeps working even where realtime
+  // is unavailable on the project.
+  useEffect(() => {
+    if (!enabled) return;
+    const id = setInterval(refresh, live ? POLL_LIVE_MS : POLL_FALLBACK_MS);
+    return () => clearInterval(id);
+  }, [enabled, live, refresh]);
+
+  return { rows, loading, error, live, refresh };
 }

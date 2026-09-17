@@ -55,12 +55,33 @@ function readableError(error: unknown): string {
  *  user on every reload. Every chat row then carries a real `auth.uid()`. */
 async function ensureVisitorSession(): Promise<string> {
   const { data: existing } = await supabase.auth.getSession();
-  if (existing.session?.user) return existing.session.user.id;
+  if (existing.session?.user) {
+    armRealtime(existing.session.access_token);
+    return existing.session.user.id;
+  }
 
   const { data, error } = await supabase.auth.signInAnonymously();
   if (error) throw error;
   if (!data.user) throw new Error("Supabase returned no user for the anonymous sign-in.");
+  armRealtime(data.session?.access_token);
   return data.user.id;
+}
+
+/**
+ * Hand the access token to the realtime socket.
+ *
+ * postgres_changes on an RLS-protected table are filtered against the socket's
+ * own JWT, not the REST one. supabase-js normally syncs this on auth state
+ * change, but the client here is built lazily on first access, so the sign-in
+ * can land before anything is listening. Setting it outright is cheap.
+ */
+function armRealtime(token: string | undefined): void {
+  if (!token) return;
+  try {
+    supabase.realtime.setAuth(token);
+  } catch {
+    /* older clients sync this themselves */
+  }
 }
 
 export function useVisitorChat(): VisitorChat {
@@ -69,6 +90,7 @@ export function useVisitorChat(): VisitorChat {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [live, setLive] = useState(false);
 
   const notify = useServerFn(submitForm);
 
@@ -81,6 +103,19 @@ export function useVisitorChat(): VisitorChat {
         : [...current, incoming].sort((a, b) => a.created_at.localeCompare(b.created_at)),
     );
   }, []);
+
+  const syncMessages = useCallback(
+    async (id: string) => {
+      const { data, error: readError } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("session_id", id)
+        .order("created_at", { ascending: true });
+      if (readError) return;
+      for (const row of (data ?? []) as ChatMessage[]) mergeMessage(row);
+    },
+    [mergeMessage],
+  );
 
   // Rejoin an existing conversation on mount.
   useEffect(() => {
@@ -162,12 +197,29 @@ export function useVisitorChat(): VisitorChat {
         },
         (payload) => mergeMessage(payload.new as ChatMessage),
       )
-      .subscribe();
+      // A silent .subscribe() hides CHANNEL_ERROR and TIMED_OUT, which is how a
+      // thread ends up looking connected while no reply ever arrives.
+      .subscribe((status, err) => {
+        setLive(status === "SUBSCRIBED");
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn(`[realtime] chat channel ${status}`, err ?? "");
+        }
+        if (status === "SUBSCRIBED") void syncMessages(sessionId);
+      });
 
     return () => {
+      setLive(false);
       void supabase.removeChannel(channel);
     };
-  }, [sessionId, mergeMessage]);
+  }, [sessionId, mergeMessage, syncMessages]);
+
+  // Poll as well: slowly while the channel is up, quickly when it is not, so a
+  // staff reply still lands even where realtime is unavailable.
+  useEffect(() => {
+    if (!sessionId || !isSupabaseConfigured()) return;
+    const id = setInterval(() => void syncMessages(sessionId), live ? 20000 : 4000);
+    return () => clearInterval(id);
+  }, [sessionId, live, syncMessages]);
 
   const start = useCallback(
     async (input: { name: string; email: string; message: string }) => {

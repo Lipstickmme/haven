@@ -1,7 +1,5 @@
 import { useId, useState } from "react";
 
-import { ProjectImage } from "./ProjectImage";
-
 /**
  * Before/after comparison.
  *
@@ -16,8 +14,8 @@ export function BeforeAfter({
   afterCaption,
   title,
 }: {
-  before: string | null;
-  after: string | null;
+  before: string;
+  after: string;
   beforeCaption: string;
   afterCaption: string;
   title: string;
@@ -28,22 +26,24 @@ export function BeforeAfter({
   return (
     <figure className="m-0">
       <div className="group relative overflow-hidden select-none">
-        <ProjectImage
+        <img
           src={after}
           alt={`${title} after completion`}
-          label="After"
-          ratio="aspect-16/9"
+          loading="lazy"
+          decoding="async"
+          className="aspect-16/9 w-full object-cover"
         />
 
         <div
           className="absolute inset-0 overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
         >
-          <ProjectImage
+          <img
             src={before}
             alt={`${title} before works`}
-            label="Before"
-            ratio="aspect-16/9"
+            loading="lazy"
+            decoding="async"
+            className="aspect-16/9 w-full object-cover"
           />
         </div>
 

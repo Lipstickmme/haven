@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
-import { ProjectImage } from "@/components/site/ProjectImage";
 import { Reveal } from "@/components/site/Reveal";
 import { CATEGORIES, PROJECTS, coverFor } from "@/lib/projects";
 import arc1 from "@/assets/arc1.webp";
@@ -75,11 +74,12 @@ function Projects() {
                   className="card-lift card-rule group block pb-5 hover:card-rule-active"
                 >
                   <div className="relative overflow-hidden">
-                    <ProjectImage
-                      src={coverFor(p)}
+                    <img
+                      src={coverFor(p)!}
                       alt={p.title}
-                      label={p.title}
-                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      loading="lazy"
+                      decoding="async"
+                      className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     />
                     <span className="absolute inset-0 bg-ink/0 transition-colors duration-700 group-hover:bg-ink/12" />
                     <span className="absolute right-6 bottom-6 flex h-12 w-12 translate-y-3 items-center justify-center rounded-full bg-background text-foreground opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">

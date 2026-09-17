@@ -24,6 +24,56 @@ import {
   json,
 } from "./_shared.server";
 
+type ChatReport = {
+  reachable: boolean;
+  detail: string;
+  sessions?: number;
+  messages?: number;
+  latestMessageAt?: string | null;
+  realtime?: string;
+};
+
+async function inspectChat(): Promise<ChatReport> {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    return { reachable: false, detail: "Supabase is not configured on this server." };
+  }
+  try {
+    const { adminClient } = await import("./_shared.server");
+    const db = adminClient();
+
+    const sessions = await db.from("chat_sessions").select("id", { count: "exact", head: true });
+    if (sessions.error) {
+      return {
+        reachable: false,
+        detail: `chat_sessions is unreadable: ${sessions.error.message}. Apply supabase/migrations/0001_init.sql.`,
+      };
+    }
+
+    const messages = await db.from("chat_messages").select("id", { count: "exact", head: true });
+    const latest = await db
+      .from("chat_messages")
+      .select("created_at")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    return {
+      reachable: true,
+      detail:
+        (messages.count ?? 0) > 0
+          ? "Visitor messages are reaching the database. If the dashboard is not showing them, the problem is on the read side — the widget and dashboard now poll as well as subscribe, so reload both."
+          : "No chat messages stored yet. If a visitor has sent one, the write is failing — check that anonymous sign-ins are enabled on this project.",
+      sessions: sessions.count ?? 0,
+      messages: messages.count ?? 0,
+      latestMessageAt: (latest.data?.["created_at"] as string | undefined) ?? null,
+      realtime:
+        "Realtime is a bonus, not a requirement: both surfaces poll as a fallback, so messages arrive within a few seconds either way.",
+    };
+  } catch (error) {
+    return { reachable: false, detail: `Could not reach the database: ${String(error)}` };
+  }
+}
+
 type Check = {
   name: string;
   set: boolean;
@@ -47,7 +97,7 @@ function check(label: string, names: string[], value: string | undefined, detail
   };
 }
 
-export function handleHealthCheck(request: Request): Response {
+export async function handleHealthCheck(request: Request): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return json({ error: "Use GET." }, 405);
   }
@@ -88,9 +138,15 @@ export function handleHealthCheck(request: Request): Response {
   const required = checks.slice(0, 3);
   const missing = required.filter((entry) => !entry.set);
 
+  // Whether visitor messages are actually landing in the database. This is the
+  // one thing that separates "chat is broken" into a write problem or a read
+  // problem, and it cannot be answered from the browser.
+  const chat = await inspectChat();
+
   return json(
     {
       status: missing.length === 0 ? "ok" : "misconfigured",
+      chat,
       supabaseProject: SUPABASE_URL ?? null,
       mailDomain: MAIL_DOMAIN,
       missing: missing.map((entry) => ({ name: entry.name, setAnyOf: entry.accepts ?? [] })),

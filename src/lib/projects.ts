@@ -64,7 +64,7 @@ export type Project = {
   legacy?: string;
 };
 
-export const PROJECTS: Project[] = [
+const RAW_PROJECTS: Project[] = [
   {
     slug: "halden-civic-centre",
     title: "Halden Civic Centre",
@@ -657,6 +657,35 @@ export const PROJECTS: Project[] = [
     ],
   },
 ];
+
+export const PART_ROLES: ImageRole[] = ["part-1", "part-2", "part-3", "part-4"];
+
+/** Only the parts that actually have a photograph. */
+export function partsWithImages(
+  project: Project,
+): Array<{ title: string; caption: string; src: string }> {
+  const out: Array<{ title: string; caption: string; src: string }> = [];
+  project.parts.forEach((part, i) => {
+    const role = PART_ROLES[i];
+    const src = role ? projectImage(project.slug, role) : null;
+    if (src) out.push({ ...part, src });
+  });
+  return out;
+}
+
+/** How much photography a project has. Drives running order: the best-shot
+ *  projects lead the index and the homepage, the thin ones fall to the end. */
+export function imageCount(project: Project): number {
+  const roles: ImageRole[] = ["cover", "before", "after", ...PART_ROLES];
+  const shot = roles.filter((role) => projectImage(project.slug, role)).length;
+  return shot + (shot === 0 && project.legacy ? 1 : 0);
+}
+
+/**
+ * Richest first. Array.prototype.sort is stable, so projects with the same
+ * number of frames keep their authored order.
+ */
+export const PROJECTS: Project[] = [...RAW_PROJECTS].sort((a, b) => imageCount(b) - imageCount(a));
 
 export const CATEGORIES = [
   "All",

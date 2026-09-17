@@ -27,7 +27,7 @@ export function Footer() {
 
           <div className="flex flex-col justify-end gap-8">
             <div className="text-ink-foreground">
-              <Logo />
+              <Logo tone="light" />
             </div>
             <div className="flex gap-6 eyebrow text-ink-foreground/60">
               <Link to="/contact" className="hover:text-accent-ink">

@@ -279,14 +279,3 @@
     ),
     linear-gradient(to top, color-mix(in oklab, var(--ink) 40%, transparent), transparent 58%);
 }
-
-/* A reserved frame: hatching reads at any width, which a centred label does
-   not once the before/after slider crops it to a sliver. */
-@utility placeholder-hatch {
-  background-color: var(--secondary);
-  background-image: repeating-linear-gradient(
-    135deg,
-    color-mix(in oklab, var(--foreground) 5%, transparent) 0 1px,
-    transparent 1px 11px
-  );
-}

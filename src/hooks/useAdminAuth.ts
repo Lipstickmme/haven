@@ -22,33 +22,51 @@ export function useAdminAuth(): AdminAuth {
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const applyUser = useCallback(async (next: User | null | undefined) => {
-    // A visitor with the chat widget open holds a real session — it is just an
-    // anonymous one, and anonymous is never staff.
-    const candidate = next && !next.is_anonymous ? next : null;
-    setUser(candidate);
-
-    if (!candidate) {
-      setIsAdmin(false);
-      return;
+  /** Same reason as the visitor widget: postgres_changes are filtered against
+   *  the realtime socket's own JWT, so it needs the token explicitly. */
+  const armRealtime = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return;
+    try {
+      supabase.realtime.setAuth(token);
+    } catch {
+      /* older clients sync this themselves */
     }
-
-    // Ask the `admins` table rather than reading a claim out of the token: the
-    // list can change without the user signing in again, and a claim is only
-    // as fresh as the JWT carrying it.
-    const { data, error: lookupError } = await supabase
-      .from("admins")
-      .select("user_id")
-      .eq("user_id", candidate.id)
-      .maybeSingle();
-
-    if (lookupError) {
-      setError(lookupError.message);
-      setIsAdmin(false);
-      return;
-    }
-    setIsAdmin(Boolean(data));
   }, []);
+
+  const applyUser = useCallback(
+    async (next: User | null | undefined) => {
+      // A visitor with the chat widget open holds a real session — it is just an
+      // anonymous one, and anonymous is never staff.
+      const candidate = next && !next.is_anonymous ? next : null;
+      setUser(candidate);
+
+      if (!candidate) {
+        setIsAdmin(false);
+        return;
+      }
+
+      await armRealtime();
+
+      // Ask the `admins` table rather than reading a claim out of the token: the
+      // list can change without the user signing in again, and a claim is only
+      // as fresh as the JWT carrying it.
+      const { data, error: lookupError } = await supabase
+        .from("admins")
+        .select("user_id")
+        .eq("user_id", candidate.id)
+        .maybeSingle();
+
+      if (lookupError) {
+        setError(lookupError.message);
+        setIsAdmin(false);
+        return;
+      }
+      setIsAdmin(Boolean(data));
+    },
+    [armRealtime],
+  );
 
   useEffect(() => {
     if (!configured) {

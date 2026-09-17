@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
 import { HeroShutter } from "@/components/site/HeroShutter";
-import { ProjectImage } from "@/components/site/ProjectImage";
 import { PROJECTS, coverFor } from "@/lib/projects";
 import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
@@ -268,11 +267,12 @@ function Home() {
                   className="card-lift card-rule group block pb-5 hover:card-rule-active"
                 >
                   <div className="overflow-hidden">
-                    <ProjectImage
-                      src={coverFor(p)}
+                    <img
+                      src={coverFor(p)!}
                       alt={p.title}
-                      label={p.title}
-                      className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      loading="lazy"
+                      decoding="async"
+                      className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     />
                   </div>
                   <h3 className="mt-6 text-2xl transition-colors group-hover:text-accent">
