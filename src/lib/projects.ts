@@ -155,10 +155,10 @@ export const PROJECTS: Project[] = [
       "The 1960s ranch house before strip-out, with the project architect and structural engineer checking the retained slab.",
     afterCaption: "The completed house from the maple line, lit through the upper glazed band.",
     parts: [
+      { title: "Stair hall", caption: "The one double-height room, top-lit." },
       { title: "Glazed band", caption: "A continuous reveal between two render planes." },
       { title: "Rotated plan", caption: "Fifteen degrees off the old grid, toward the slope." },
       { title: "Entrance court", caption: "Formed by the retained footprint's north edge." },
-      { title: "Stair hall", caption: "The one double-height room, top-lit." },
     ],
     legacy: arc6,
   },
@@ -183,12 +183,12 @@ export const PROJECTS: Project[] = [
       "The vacant corner plot with the site architect and contractor setting out the north boundary line.",
     afterCaption: "The finished house from the lane, carport open beneath the brick volume.",
     parts: [
+      { title: "Folded steel stair", caption: "One plate, one fabricator, two streets away." },
       {
         title: "Stack-bond brick",
         caption: "The upper volume, weighted by bond rather than colour.",
       },
       { title: "Carport court", caption: "Parking and entrance in the same south-facing room." },
-      { title: "Folded steel stair", caption: "One plate, one fabricator, two streets away." },
       { title: "North boundary", caption: "Where the mass had to go for the shadows to work." },
     ],
     legacy: arc5,
@@ -243,12 +243,12 @@ export const PROJECTS: Project[] = [
     afterCaption: "The completed folded roof over the print hall, seen from the adjacent canal.",
     parts: [
       { title: "Eleven folds", caption: "Each facet sized from the conservation daylight model." },
+      {
+        title: "Folds going up",
+        caption: "The eleven facets cast and struck, before the glazing went in.",
+      },
       { title: "Print hall", caption: "One top-lit room at fifty lux, flat across the year." },
       { title: "Open joints", caption: "Precast tolerance turned into a shadow gap." },
-      {
-        title: "Blind south wall",
-        caption: "Stores, study rooms and plant, all in the dark side.",
-      },
     ],
     legacy: project2,
   },
@@ -274,9 +274,9 @@ export const PROJECTS: Project[] = [
     afterCaption: "The double-height living space against the retained north window wall.",
     parts: [
       { title: "Slab opening", caption: "A third of the upper plate, removed." },
+      { title: "North glazing", caption: "The one element worth keeping." },
       { title: "Transfer beam", caption: "Three pieces, one goods lift, one weekend." },
       { title: "Upper gallery", caption: "Study, guest room, and the view." },
-      { title: "North glazing", caption: "The one element worth keeping." },
     ],
     legacy: arc1,
   },
@@ -302,8 +302,11 @@ export const PROJECTS: Project[] = [
     afterCaption: "The completed loggias fanning across the hillside in late afternoon light.",
     parts: [
       { title: "Fanned loggias", caption: "Four degrees per floor, so no sightline repeats." },
+      {
+        title: "Terracing the slope",
+        caption: "Cutting the benches each loggia sits on, from the access road down.",
+      },
       { title: "Travertine skin", caption: "Chosen because it weathers, not despite it." },
-      { title: "Buried back of house", caption: "Service circulation inside the hill." },
       { title: "Arrival court", caption: "The only place the hotel presents a front." },
     ],
     legacy: arc3,
@@ -329,10 +332,10 @@ export const PROJECTS: Project[] = [
       "The disused foundry floor, with the project team surveying the retained steel frame under temporary lighting.",
     afterCaption: "The finished making floor beneath the reglazed north roof slope.",
     parts: [
-      { title: "Retained frame", caption: "Better than the survey suggested." },
       { title: "North glazing", caption: "The one slope worth opening up." },
-      { title: "Floating deck", caption: "Desks above an oil-soaked floor left on show." },
       { title: "Crane rail", caption: "Kept, and still used." },
+      { title: "Retained frame", caption: "Better than the survey suggested." },
+      { title: "Floating deck", caption: "Desks above an oil-soaked floor left on show." },
     ],
     legacy: hero2,
   },
@@ -386,9 +389,12 @@ export const PROJECTS: Project[] = [
     afterCaption: "The completed perimeter block enclosing the retained kiln at dusk.",
     parts: [
       { title: "Retained kiln", caption: "Eleven units traded for the centre of the courtyard." },
-      { title: "Dual aspect", caption: "Every home, without exception, including the corners." },
-      { title: "Reclaimed brick", caption: "Old and new laid in declared panels, never blended." },
       { title: "Yard threshold", caption: "Where the public route crosses into the block." },
+      {
+        title: "The block going up",
+        caption: "The perimeter rising around the kiln, which stayed standing throughout.",
+      },
+      { title: "Dual aspect", caption: "Every home, without exception, including the corners." },
     ],
   },
   {
@@ -417,8 +423,8 @@ export const PROJECTS: Project[] = [
         title: "Classroom thresholds",
         caption: "Coats, storage and a window seat in every doorway.",
       },
-      { title: "Exposed CLT", caption: "Nine weeks of frame over one summer holiday." },
       { title: "Gable stage", caption: "At the far end, where the street is widest." },
+      { title: "Exposed CLT", caption: "Nine weeks of frame over one summer holiday." },
     ],
   },
   {
@@ -528,8 +534,8 @@ export const PROJECTS: Project[] = [
       "The staked-out site in deep snow, with the architects and client reviewing the position of the plan.",
     afterCaption: "The completed steel volume on its stone base, birches bare, mid-winter.",
     parts: [
-      { title: "Weathering steel", caption: "Nothing to paint in a house left empty for months." },
       { title: "Field-wall base", caption: "Stone taken from the site's own walls." },
+      { title: "Weathering steel", caption: "Nothing to paint in a house left empty for months." },
       { title: "North service wall", caption: "All storage, so the south wall can be glass." },
       { title: "Winter view", caption: "The reason the plan moved twice in February." },
     ],
@@ -645,9 +651,9 @@ export const PROJECTS: Project[] = [
     afterCaption: "The completed cloister facing the green, late afternoon in autumn.",
     parts: [
       { title: "The cloister", caption: "Wide enough to sit in, sheltered enough for February." },
-      { title: "Single-storey homes", caption: "Eighteen front doors, all onto the same walk." },
-      { title: "Adaptable bathroom", caption: "Reconfigurable without touching drainage." },
       { title: "The green", caption: "What the cloister is for." },
+      { title: "Adaptable bathroom", caption: "Reconfigurable without touching drainage." },
+      { title: "Single-storey homes", caption: "Eighteen front doors, all onto the same walk." },
     ],
   },
 ];
