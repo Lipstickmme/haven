@@ -55,6 +55,9 @@ declare
   core_realtime text[] := array['chat_sessions', 'chat_messages', 'bookings', 'site_settings'];
   email_realtime text[] := array['email_threads', 'email_messages'];
 
+  -- expected: table.column, for columns added by a later migration
+  core_columns text[] := array['site_settings.offices'];
+
   core_functions text[] := array['is_admin', 'touch_updated_at', 'touch_chat_session'];
   core_types text[] := array['item_status', 'booking_status'];
 
@@ -73,6 +76,17 @@ begin
       where n.nspname = 'public' and c.relname = name and c.relrowsecurity
     ) then
       problems := problems || format('row level security is OFF on public.%s', name);
+    end if;
+  end loop;
+
+  -- Columns ------------------------------------------------------------
+  foreach name in array core_columns loop
+    parts := string_to_array(name, '.');
+    if to_regclass('public.' || quote_ident(parts[1])) is not null and not exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = parts[1] and column_name = parts[2]
+    ) then
+      problems := problems || format('missing column %s on public.%s', parts[2], parts[1]);
     end if;
   end loop;
 

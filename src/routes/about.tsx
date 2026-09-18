@@ -47,7 +47,8 @@ const TIMELINE = [
   { year: "2004", text: "Studio founded in Rochester with three people and one drawing board." },
   { year: "2011", text: "First cultural commission; the practice grows to twenty." },
   { year: "2018", text: "Sustainability unit formed; all projects modelled for embodied carbon." },
-  { year: "2026", text: "62 people across architecture, interiors and research." },
+  { year: "2021", text: "Jacksonville studio opens, then Richmond BC two years later." },
+  { year: "2026", text: "62 people across three offices, architecture, interiors and research." },
 ];
 
 function About() {

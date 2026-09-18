@@ -3,6 +3,11 @@ import { contactDetails, SITE } from "@/lib/site";
 import { useSiteSettings } from "./SiteSettingsContext";
 import { Logo } from "./Logo";
 
+/** `+1 929 647 6610` → `+19296476610`, which is what a dialler wants. */
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
+
 export function Footer() {
   const settings = useSiteSettings();
   const details = contactDetails(settings);
@@ -44,6 +49,30 @@ export function Footer() {
               {SITE.name} 2026. All rights reserved.
             </p>
           </div>
+        </div>
+
+        {/* Offices. Each one prints its own phone, so nobody has to guess which
+            studio a single switchboard number belongs to. */}
+        <div className="mt-20 border-t border-ink-foreground/15 pt-12">
+          <p className="eyebrow text-accent-ink">Offices</p>
+          <ul className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {settings.offices.map((office) => (
+              <li key={`${office.label}-${office.address}`}>
+                <p className="font-display text-2xl text-ink-foreground">{office.label}</p>
+                <address className="mt-3 max-w-xs text-sm leading-relaxed text-ink-foreground/70 not-italic">
+                  {office.address}
+                </address>
+                {office.phone ? (
+                  <a
+                    href={telHref(office.phone)}
+                    className="mt-3 inline-block text-sm text-ink-foreground/90 transition-colors hover:text-accent-ink"
+                  >
+                    {office.phone}
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

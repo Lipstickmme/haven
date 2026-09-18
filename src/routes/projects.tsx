@@ -5,23 +5,38 @@ import { ArrowUpRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
 import { FrameReveal } from "@/components/site/FrameReveal";
-import { CATEGORIES, DISCIPLINES, PROJECTS, coverFor, type Discipline } from "@/lib/projects";
+import { ProjectCover } from "@/components/site/ProjectCover";
+import {
+  DISCIPLINES,
+  PROJECTS,
+  SECTORS,
+  categoriesIn,
+  projectLabels,
+  type Category,
+  type Discipline,
+  type Sector,
+} from "@/lib/projects";
 import arc1 from "@/assets/arc1.webp";
 
-type Search = { discipline?: Discipline };
+type Search = { discipline?: Discipline; sector?: Sector };
 
 export const Route = createFileRoute("/projects")({
   validateSearch: (search: Record<string, unknown>): Search => {
-    const value = search["discipline"];
-    return DISCIPLINES.includes(value as Discipline) ? { discipline: value as Discipline } : {};
+    const discipline = search["discipline"];
+    const sector = search["sector"];
+    return {
+      ...(DISCIPLINES.includes(discipline as Discipline)
+        ? { discipline: discipline as Discipline }
+        : {}),
+      ...(SECTORS.includes(sector as Sector) ? { sector: sector as Sector } : {}),
+    };
   },
   head: () => ({
     meta: [
       { title: "Projects. Meastro Architecture" },
       {
         name: "description",
-        content:
-          "Twenty residential, cultural, civic, education, hospitality, workplace and retail projects by Meastro Architecture.",
+        content: `${PROJECTS.length} architecture and interior design projects by Meastro Architecture, split between residential and commercial work.`,
       },
       { property: "og:title", content: "Projects. Meastro Architecture" },
       {
@@ -34,22 +49,31 @@ export const Route = createFileRoute("/projects")({
 });
 
 function Projects() {
-  const { discipline } = Route.useSearch();
+  const { discipline, sector } = Route.useSearch();
   const navigate = Route.useNavigate();
-  const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("All");
+  const [cat, setCat] = useState<Category | "All">("All");
 
-  const byDiscipline = useMemo(
-    () => (discipline ? PROJECTS.filter((p) => p.discipline === discipline) : PROJECTS),
-    [discipline],
+  // Discipline and sector come from the URL so the hero can deep-link them and
+  // a filtered view can be shared; the category is a local refinement of that.
+  const scoped = useMemo(
+    () =>
+      PROJECTS.filter(
+        (p) => (!discipline || p.discipline === discipline) && (!sector || p.sector === sector),
+      ),
+    [discipline, sector],
   );
+
+  // Only the categories still represented, so every chip returns something.
+  const categories = useMemo(() => categoriesIn(scoped), [scoped]);
+  const activeCat = cat !== "All" && !categories.includes(cat) ? "All" : cat;
   const list = useMemo(
-    () => (cat === "All" ? byDiscipline : byDiscipline.filter((p) => p.category === cat)),
-    [byDiscipline, cat],
+    () => (activeCat === "All" ? scoped : scoped.filter((p) => p.category === activeCat)),
+    [scoped, activeCat],
   );
 
-  const setDiscipline = (next: Discipline | undefined) => {
+  const go = (next: Search) => {
     setCat("All");
-    void navigate({ search: next ? { discipline: next } : {}, replace: true });
+    void navigate({ search: next, replace: true });
   };
 
   return (
@@ -65,36 +89,68 @@ function Projects() {
       <section className="relative bg-background py-20 md:py-28">
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-40" />
         <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
-          <Reveal className="flex flex-wrap items-center gap-8 border-b border-border pb-6">
-            {[undefined, ...DISCIPLINES].map((value) => (
-              <button
-                key={value ?? "all"}
-                onClick={() => setDiscipline(value)}
-                className={`font-display text-2xl transition-colors md:text-3xl ${
-                  discipline === value
-                    ? "text-foreground"
-                    : "text-muted-foreground/50 hover:text-muted-foreground"
-                }`}
-              >
-                {value ?? "All work"}
-              </button>
-            ))}
+          <Reveal className="flex flex-wrap items-baseline justify-between gap-x-10 gap-y-6 border-b border-border pb-6">
+            <div className="flex flex-wrap items-baseline gap-8">
+              {[undefined, ...DISCIPLINES].map((value) => (
+                <button
+                  key={value ?? "all"}
+                  onClick={() =>
+                    go({ ...(value ? { discipline: value } : {}), ...(sector ? { sector } : {}) })
+                  }
+                  className={`font-display text-2xl transition-colors md:text-3xl ${
+                    discipline === value
+                      ? "text-foreground"
+                      : "text-muted-foreground/50 hover:text-muted-foreground"
+                  }`}
+                >
+                  {value ?? "All work"}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {[undefined, ...SECTORS].map((value) => (
+                <button
+                  key={value ?? "all"}
+                  onClick={() =>
+                    go({
+                      ...(discipline ? { discipline } : {}),
+                      ...(value ? { sector: value } : {}),
+                    })
+                  }
+                  className={`border px-5 py-2 eyebrow transition-colors ${
+                    sector === value
+                      ? "border-accent bg-accent text-accent-foreground"
+                      : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
+                >
+                  {value ?? "All sectors"}
+                </button>
+              ))}
+            </div>
           </Reveal>
 
+          {/* The category row is derived from what the two filters above left,
+              so it disappears rather than offering a single redundant chip. */}
           <Reveal className="mt-8 flex flex-wrap items-center gap-3 border-b border-border pb-8">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCat(c)}
-                className={`border px-5 py-2 eyebrow transition-colors ${
-                  cat === c
-                    ? "border-accent text-accent"
-                    : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
+            {categories.length > 1 ? (
+              <span className="eyebrow mr-2 text-muted-foreground/60">Type</span>
+            ) : null}
+            {categories.length > 1
+              ? (["All", ...categories] as const).map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCat(c)}
+                    className={`border px-5 py-2 eyebrow transition-colors ${
+                      activeCat === c
+                        ? "border-accent text-accent"
+                        : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))
+              : null}
             <span className="ml-auto eyebrow text-muted-foreground">
               {list.length} {list.length === 1 ? "project" : "projects"}
             </span>
@@ -109,16 +165,13 @@ function Projects() {
                   className="card-lift card-rule group block pb-5 hover:card-rule-active"
                 >
                   <FrameReveal className="relative" delay={(i % 2) * 80}>
-                    <img
-                      src={coverFor(p)!}
-                      alt={p.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-4/3 w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
-                    />
+                    <ProjectCover project={p} />
                     <span className="absolute inset-0 bg-ink/0 transition-colors duration-700 group-hover:bg-ink/12" />
                     <span className="absolute right-6 bottom-6 flex h-12 w-12 translate-y-3 items-center justify-center rounded-full bg-background text-foreground opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
                       <ArrowUpRight size={18} strokeWidth={1.4} />
+                    </span>
+                    <span className="eyebrow absolute top-5 right-5 bg-background/90 px-3 py-1.5 text-foreground">
+                      {p.sector}
                     </span>
                     {p.status !== "Built" ? (
                       <span className="eyebrow absolute top-5 left-5 bg-background/90 px-3 py-1.5 text-foreground">
@@ -132,7 +185,7 @@ function Projects() {
                         {p.title}
                       </h2>
                       <p className="mt-2 eyebrow text-muted-foreground">
-                        {p.category} · {p.place}
+                        {projectLabels(p).join(" · ")}
                       </p>
                       <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
                         {p.blurb}

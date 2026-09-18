@@ -45,6 +45,18 @@ export type Discipline = "Architecture" | "Interior Design";
 
 export const DISCIPLINES: Discipline[] = ["Architecture", "Interior Design"];
 
+/**
+ * Who the building is for, which is a coarser cut than `category`.
+ *
+ * Stored rather than derived from the category: most of the time a Residential
+ * category does mean the residential sector, but not always — a developer's
+ * show apartment is a flat that no one lives in, and it belongs with the
+ * commercial work.
+ */
+export type Sector = "Residential" | "Commercial";
+
+export const SECTORS: Sector[] = ["Residential", "Commercial"];
+
 export type Part = { title: string; caption: string };
 
 export type Project = {
@@ -53,6 +65,8 @@ export type Project = {
   category: Category;
   /** Which side of the practice led the commission. */
   discipline: Discipline;
+  /** Who it is for: a household, or an organisation. */
+  sector: Sector;
   place: string;
   year: string;
   status: "Built" | "On site" | "In design";
@@ -76,6 +90,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Halden Civic Centre",
     category: "Civic",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Oslo",
     year: "2025",
     status: "Built",
@@ -111,6 +126,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Bastion Arts Foundation",
     category: "Cultural",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Antwerp",
     year: "2025",
     status: "Built",
@@ -147,6 +163,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Lantern House",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Connecticut",
     year: "2024",
     status: "Built",
@@ -176,6 +193,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Carriage Lane House",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Rochester",
     year: "2023",
     status: "Built",
@@ -208,6 +226,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Cliff Terrace Residence",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Amalfi",
     year: "2023",
     status: "Built",
@@ -237,6 +256,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Fold Museum Annex",
     category: "Cultural",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Rotterdam",
     year: "2024",
     status: "Built",
@@ -269,6 +289,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Solstice Penthouse",
     category: "Residential",
     discipline: "Interior Design",
+    sector: "Residential",
     place: "New York",
     year: "2025",
     status: "Built",
@@ -298,6 +319,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Travertine House Hotel",
     category: "Hospitality",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Lisbon",
     year: "2024",
     status: "Built",
@@ -330,6 +352,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Ironworks Studio",
     category: "Workplace",
     discipline: "Interior Design",
+    sector: "Commercial",
     place: "Rochester",
     year: "2023",
     status: "Built",
@@ -359,6 +382,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Marble Line Flagship",
     category: "Retail",
     discipline: "Interior Design",
+    sector: "Commercial",
     place: "Milan",
     year: "2022",
     status: "Built",
@@ -391,6 +415,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Kiln Yard Housing",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Manchester",
     year: "2026",
     status: "On site",
@@ -422,6 +447,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Calder Street School",
     category: "Education",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Glasgow",
     year: "2025",
     status: "Built",
@@ -453,6 +479,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Rookery Lane Library",
     category: "Civic",
     discipline: "Interior Design",
+    sector: "Commercial",
     place: "Norwich",
     year: "2025",
     status: "Built",
@@ -484,6 +511,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Saltworks Pavilion",
     category: "Cultural",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Gdańsk",
     year: "2026",
     status: "On site",
@@ -512,6 +540,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Wharfside Market Hall",
     category: "Retail",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Bristol",
     year: "2024",
     status: "Built",
@@ -543,6 +572,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Ferrous House",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Vermont",
     year: "2024",
     status: "Built",
@@ -570,6 +600,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Granary Quarter Offices",
     category: "Workplace",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Dublin",
     year: "2026",
     status: "In design",
@@ -600,6 +631,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Pinewood Chapel",
     category: "Civic",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Oregon",
     year: "2023",
     status: "Built",
@@ -631,6 +663,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Quarry Edge Hotel",
     category: "Hospitality",
     discipline: "Architecture",
+    sector: "Commercial",
     place: "Cape Town",
     year: "2026",
     status: "On site",
@@ -662,6 +695,7 @@ const RAW_PROJECTS: Project[] = [
     title: "Alder Court Almshouses",
     category: "Residential",
     discipline: "Architecture",
+    sector: "Residential",
     place: "Suffolk",
     year: "2025",
     status: "Built",
@@ -683,6 +717,192 @@ const RAW_PROJECTS: Project[] = [
       { title: "The green", caption: "What the cloister is for." },
       { title: "Adaptable bathroom", caption: "Reconfigurable without touching drainage." },
       { title: "Single-storey homes", caption: "Eighteen front doors, all onto the same walk." },
+    ],
+  },
+  {
+    slug: "harbourgate-show-residence",
+    title: "Harbourgate Show Residence",
+    category: "Residential",
+    discipline: "Interior Design",
+    sector: "Commercial",
+    place: "Richmond",
+    year: "2026",
+    status: "Built",
+    size: "165 m²",
+    client: "Harbourgate Developments",
+    blurb: "A show apartment detailed to survive being walked through, not just photographed.",
+    summary:
+      "The first finished flat in a 240-home block, fitted out as the room every buyer walks through, and specified for eighteen months of that traffic rather than one afternoon of it.",
+    body: [
+      "A show flat is a commercial instrument that happens to look like a home, which is why it sits under our commercial work rather than our residential work. Nobody lives here. Six thousand people walked through it in the first year, most of them in outdoor shoes, and the brief we wrote back to the developer was about wear before it was about taste.",
+      "So the floor is engineered oak with a 6 mm wear layer rather than the 2.5 mm the contractor priced, the sofa is upholstered in a wool the manufacturer sells to airports, and every internal corner below waist height has a hardwood nosing set flush into the plaster. None of it is visible in a photograph. All of it is the reason the flat still looked new when the last unit sold.",
+      "The one indulgence is the kitchen island, cut from a single slab of Canadian marble with a fault running through it that the supplier offered at a discount and expected us to refuse. It is the thing people photograph, and it is the thing they remember, and it cost less than the joinery either side of it.",
+    ],
+    beforeCaption:
+      "The concrete shell on handover from the main contractor, with two of our interior architects setting out the kitchen run against the drawings.",
+    afterCaption:
+      "The completed living room looking back towards the island, mid-morning, with the river light coming across the balcony.",
+    parts: [
+      {
+        title: "Marble island",
+        caption: "One slab, fault and all, bought at a discount and kept for the fault.",
+      },
+      {
+        title: "Oak floor",
+        caption: "A 6 mm wear layer, specified for six thousand pairs of outdoor shoes.",
+      },
+      {
+        title: "Bedroom joinery",
+        caption: "Full height, flush, with the handles cut into the door edge.",
+      },
+    ],
+  },
+  {
+    slug: "basswood-family-house",
+    title: "Basswood Family House",
+    category: "Residential",
+    discipline: "Interior Design",
+    sector: "Residential",
+    place: "Rochester",
+    year: "2025",
+    status: "Built",
+    size: "240 m²",
+    client: "Private",
+    blurb: "A 1962 split-level opened up around one removed wall and one kept staircase.",
+    summary:
+      "Everything the family disliked about the house came down to a single spine wall, and everything they loved came down to the staircase behind it. We took one out and left the other exactly where it was.",
+    body: [
+      "The house was sound, warm and unloved. Four bedrooms, a good garden, and a load-bearing spine wall that cut the ground floor into three rooms nobody used at the same time. The obvious move was to take it out, which we did, with a flitch beam deep enough to need the ceiling dropped by 140 mm across the span.",
+      "The staircase was the argument. It is original, terrazzo-treaded, with a steel balustrade that would fail every current guidance on gap widths, and the family expected us to replace it. We kept it, added a secondary rail at the height the regulations want, and left the original visible behind it. The compromise reads as deliberate because it was.",
+      "The rest is quiet. Lime plaster left unpainted in the hall, a kitchen in oiled ash that will mark and is meant to, and the same clay tile running from the back door out onto the terrace so the garden feels like the end of the room rather than the other side of a threshold.",
+    ],
+    beforeCaption:
+      "The ground floor with the spine wall still standing, propped, while the architects and the structural engineer mark up the beam position on the plaster.",
+    afterCaption:
+      "The opened ground floor from the garden door, with the original staircase visible at the far end.",
+    parts: [
+      {
+        title: "The kept staircase",
+        caption: "Original terrazzo, with the new rail set in front of the old one.",
+      },
+      {
+        title: "Ash kitchen",
+        caption: "Oiled rather than lacquered, so it marks and then settles.",
+      },
+      {
+        title: "Lime plaster hall",
+        caption: "Left unpainted; it moves with the weather and we let it.",
+      },
+    ],
+  },
+  {
+    slug: "ortolan-dining-rooms",
+    title: "Ortolan Dining Rooms",
+    category: "Hospitality",
+    discipline: "Interior Design",
+    sector: "Commercial",
+    place: "Jacksonville",
+    year: "2025",
+    status: "Built",
+    size: "410 m²",
+    client: "Ortolan Hospitality",
+    blurb: "A 1924 banking hall turned restaurant, where the real problem was the echo.",
+    summary:
+      "A marble banking hall makes a spectacular dining room and an unusable one. Most of this project is acoustic, and almost none of it is visible.",
+    body: [
+      "The room was built in 1924 to make people lower their voices, and it worked: plaster vault, marble dado, terrazzo floor, and a reverberation time of 2.4 seconds when we first measured it. At that figure a full restaurant is not loud, it is incoherent. You cannot hear the person opposite you.",
+      "Everything that fixed it is hidden. Perforated plaster panels in the vault coffers, cut to the coffer module so the ceiling still reads as one surface. Felt bonded to the back of the banquette joinery. A carpet under the central tables only, which took the room to 1.1 seconds, and a second, quieter measurement once the upholstery arrived.",
+      "What is visible we barely touched. The teller counter is now the bar, cut once to let staff through and otherwise left with its original grille and its original scratches. The safe door is still on its hinges at the back of the room, open, because the client wanted it closed and the fire officer did not.",
+    ],
+    beforeCaption:
+      "The disused banking hall before strip-out, with the design team taking acoustic readings from the middle of the floor.",
+    afterCaption:
+      "The dining room in service, with the old teller counter working as the bar along the left-hand wall.",
+    parts: [
+      {
+        title: "Teller counter bar",
+        caption: "Cut once for staff access, otherwise left with its scratches.",
+      },
+      {
+        title: "Coffer panels",
+        caption: "Perforated plaster on the coffer module; the ceiling still reads as one surface.",
+      },
+      {
+        title: "Banquette run",
+        caption: "Felt bonded behind the joinery, which nobody will ever see.",
+      },
+    ],
+  },
+  {
+    slug: "fernbank-clinic",
+    title: "Fernbank Clinic",
+    category: "Workplace",
+    discipline: "Interior Design",
+    sector: "Commercial",
+    place: "Toronto",
+    year: "2026",
+    status: "On site",
+    size: "620 m²",
+    client: "Fernbank Health",
+    blurb: "Fourteen consulting rooms arranged so nobody sits in a corridor waiting to be called.",
+    summary:
+      "A clinic fit-out where the plan does the pastoral work: two circulation routes, so a patient never walks back past the room they have just left, and nobody waits in a line of chairs facing a door.",
+    body: [
+      "The client asked for an interior that did not feel clinical, which usually means a request for softer colours. The colours were never the problem. The problem is the standard clinic plan, where one corridor serves every room and the waiting area is a row of chairs pointed at the door you are dreading.",
+      "So there are two routes. Patients arrive into a daylit room with seating in small groups, are collected rather than called, and leave by a second corridor that does not pass the waiting area. It costs about forty square metres of lettable area, which the client agreed to lose after sitting in the mock-up for an afternoon.",
+      "Materially it is restrained and hard-wearing: linoleum in a warm grey, oak veneer to door linings and handrails, and acoustic plaster in the consulting rooms tested to 45 dB between rooms, which is higher than the guidance asks for and the only figure the clinicians cared about.",
+    ],
+    beforeCaption:
+      "The vacant second floor before partitioning, with the project architects setting out the two corridor runs in tape on the slab.",
+    afterCaption:
+      "The completed arrival room, with seating grouped rather than lined up and daylight from the south elevation.",
+    parts: [
+      {
+        title: "Arrival room",
+        caption: "Grouped seating, no row of chairs facing a door.",
+      },
+      {
+        title: "Consulting room",
+        caption: "Acoustic plaster tested to 45 dB, which is the number that mattered.",
+      },
+      {
+        title: "Second corridor",
+        caption: "Forty square metres of lettable area, given up on purpose.",
+      },
+    ],
+  },
+  {
+    slug: "juniper-loft",
+    title: "Juniper Loft",
+    category: "Residential",
+    discipline: "Interior Design",
+    sector: "Residential",
+    place: "Montreal",
+    year: "2024",
+    status: "Built",
+    size: "130 m²",
+    client: "Private",
+    blurb: "A garment-factory floor divided by furniture rather than walls.",
+    summary:
+      "One room, four uses, and a client who had lived in the shell for two years and knew exactly which parts of it she did not want divided.",
+    body: [
+      "She had been camping in it since the building was converted, which is the best possible brief. She knew the light moved off the west windows at four, that the freight lift was loud on weekday mornings, and that the only thing she genuinely needed enclosed was the bedroom.",
+      "So there is one wall, and everything else is joinery: a 2.1 m oak volume holding the kitchen on one face, storage on the second and the bathroom door on the third, standing free of the ceiling so the original steel beams run over the top of it uninterrupted.",
+      "The floor is the existing maple, sanded once and left with the oil stains where the machines stood. We argued to keep them and she agreed faster than we expected. They are the only evidence left that anyone worked here.",
+    ],
+    beforeCaption:
+      "The bare factory floor with services capped off, the architects pacing out the joinery volume against the column grid.",
+    afterCaption:
+      "The finished loft looking west at four in the afternoon, the oak volume standing clear of the beams.",
+    parts: [
+      {
+        title: "The oak volume",
+        caption: "Kitchen, storage and a bathroom door, stopped short of the ceiling.",
+      },
+      {
+        title: "Maple floor",
+        caption: "Sanded once, with the machine oil left where it fell.",
+      },
     ],
   },
 ];
@@ -726,6 +946,23 @@ export const CATEGORIES = [
   "Workplace",
   "Retail",
 ] as const;
+
+/**
+ * The labels printed under a card and in the profile hero.
+ *
+ * Deduplicated: for most residential work the sector and the category are the
+ * same word, and "Residential · Residential · Connecticut" reads like a bug.
+ */
+export function projectLabels(project: Project): string[] {
+  const labels = [project.discipline, project.sector, project.category, project.place];
+  return labels.filter((label, i) => labels.indexOf(label) === i);
+}
+
+/** The categories actually present in a filtered set, so no chip is a dead end. */
+export function categoriesIn(projects: Project[]): Category[] {
+  const present = new Set(projects.map((p) => p.category));
+  return CATEGORIES.filter((c): c is Category => c !== "All" && present.has(c as Category));
+}
 
 export function projectBySlug(slug: string): Project | undefined {
   return PROJECTS.find((p) => p.slug === slug);

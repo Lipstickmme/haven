@@ -5,7 +5,14 @@ import { BeforeAfter } from "@/components/site/BeforeAfter";
 import { Reveal } from "@/components/site/Reveal";
 import { WordRise } from "@/components/site/WordRise";
 import { FrameReveal } from "@/components/site/FrameReveal";
-import { PROJECTS, coverFor, partsWithImages, projectBySlug, projectImage } from "@/lib/projects";
+import {
+  PROJECTS,
+  coverFor,
+  partsWithImages,
+  projectBySlug,
+  projectImage,
+  projectLabels,
+} from "@/lib/projects";
 
 export const Route = createFileRoute("/projects_/$slug")({
   loader: ({ params }) => {
@@ -39,8 +46,13 @@ function ProjectProfile() {
   const before = projectImage(project.slug, "before");
   const after = projectImage(project.slug, "after") ?? coverFor(project);
   const parts = partsWithImages(project);
+  // "The building" is the wrong noun for an interiors commission.
+  const subject = project.discipline === "Interior Design" ? "interior" : "building";
 
+  // Eight facts, four to a row, so the grid fills rather than leaving a gap.
   const facts = [
+    { label: "Discipline", value: project.discipline },
+    { label: "Sector", value: project.sector },
     { label: "Type", value: project.category },
     { label: "Location", value: project.place },
     { label: "Year", value: project.year },
@@ -65,9 +77,7 @@ function ProjectProfile() {
         <div className="pointer-events-none absolute inset-0 plan-grid-dark" />
 
         <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
-          <p className="eyebrow text-accent-ink">
-            {project.category} · {project.place}
-          </p>
+          <p className="eyebrow text-accent-ink">{projectLabels(project).join(" · ")}</p>
           <WordRise
             as="h1"
             text={project.title}
@@ -88,7 +98,7 @@ function ProjectProfile() {
 
       {/* Facts ----------------------------------------------------------- */}
       <section className="border-b border-border bg-background">
-        <dl className="mx-auto grid max-w-[92rem] grid-cols-2 gap-px bg-border px-5 md:grid-cols-6 md:px-10">
+        <dl className="mx-auto grid max-w-[92rem] grid-cols-2 gap-px bg-border px-5 sm:grid-cols-4 md:px-10">
           {facts.map((fact) => (
             <div key={fact.label} className="bg-background py-7">
               <dt className="eyebrow text-muted-foreground">{fact.label}</dt>
@@ -124,14 +134,14 @@ function ProjectProfile() {
           <div className="mx-auto max-w-[92rem] px-5 md:px-10">
             <Reveal>
               <p className="eyebrow draw-rule draw-rule-in text-accent">
-                {before && after ? "Before and after" : "The building"}
+                {before && after ? "Before and after" : `The ${subject}`}
               </p>
               <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight md:text-4xl">
                 {before && after
                   ? "What was here, and what is here now."
                   : before
-                    ? "The site as we found it."
-                    : "The building as completed."}
+                    ? "The space as we found it."
+                    : `The ${subject} as completed.`}
               </h2>
             </Reveal>
             <Reveal delay={120} className="mt-10">
@@ -167,7 +177,7 @@ function ProjectProfile() {
         <section className="bg-background py-20 md:py-28">
           <div className="mx-auto max-w-[92rem] px-5 md:px-10">
             <Reveal>
-              <p className="eyebrow draw-rule draw-rule-in text-accent">Parts of the building</p>
+              <p className="eyebrow draw-rule draw-rule-in text-accent">Parts of the {subject}</p>
             </Reveal>
             <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
               {parts.map((part, i) => (

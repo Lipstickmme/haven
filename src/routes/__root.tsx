@@ -91,7 +91,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Meastro Architecture" },
       {
         name: "description",
-        content: "Architecture and interior design studio based in Rochester, New York.",
+        content:
+          "Architecture and interior design studio with offices in Rochester NY, Jacksonville FL and Richmond BC.",
       },
       { name: "author", content: "Meastro Architecture" },
       { property: "og:type", content: "website" },

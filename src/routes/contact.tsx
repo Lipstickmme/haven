@@ -6,7 +6,7 @@ import { PageHero } from "@/components/site/PageHero";
 import arc6 from "@/assets/arc6.webp";
 import { Reveal } from "@/components/site/Reveal";
 import { useFormSubmit } from "@/hooks/useFormSubmit";
-import { contactDetailsFull } from "@/lib/site";
+import { contactDetails } from "@/lib/site";
 import { useSiteSettings } from "@/components/site/SiteSettingsContext";
 import type { SubmitFormInput } from "@/lib/api/forms";
 
@@ -17,12 +17,12 @@ export const Route = createFileRoute("/contact")({
       {
         name: "description",
         content:
-          "Talk to Meastro Architecture in Rochester, NY about your site, brief or feasibility study.",
+          "Talk to Meastro Architecture about your site, brief or feasibility study. Studios in Rochester NY, Jacksonville FL and Richmond BC.",
       },
       { property: "og:title", content: "Contact Meastro Architecture" },
       {
         property: "og:description",
-        content: "Rochester, NY studio, tell us about your site and brief.",
+        content: "Three studios across North America. Tell us about your site and brief.",
       },
     ],
   }),
@@ -30,6 +30,11 @@ export const Route = createFileRoute("/contact")({
 });
 
 const CONSULTATIONS = ["Initial consultation", "Site visit", "Feasibility study", "Design review"];
+
+/** `+1 929 647 6610` → `+19296476610`, which is what a dialler wants. */
+function telHref(phone: string): string {
+  return `tel:${phone.replace(/[^\d+]/g, "")}`;
+}
 
 const fieldClass =
   "mt-3 w-full border-b border-border bg-transparent pb-3 text-lg outline-none transition-colors focus:border-accent";
@@ -62,7 +67,8 @@ function Honeypot({
 }
 
 function Contact() {
-  const details = contactDetailsFull(useSiteSettings());
+  const settings = useSiteSettings();
+  const details = contactDetails(settings);
 
   return (
     <>
@@ -87,6 +93,29 @@ function Contact() {
                 </div>
               ))}
             </dl>
+
+            <p className="eyebrow draw-rule draw-rule-in mt-16 text-accent">Offices</p>
+            <ul className="mt-10 space-y-9">
+              {settings.offices.map((office) => (
+                <li
+                  key={`${office.label}-${office.address}`}
+                  className="border-b border-border pb-6"
+                >
+                  <p className="font-display text-2xl">{office.label}</p>
+                  <address className="mt-3 text-base leading-relaxed text-muted-foreground not-italic">
+                    {office.address}
+                  </address>
+                  {office.phone ? (
+                    <a
+                      href={telHref(office.phone)}
+                      className="link-underline mt-3 inline-block text-base transition-colors hover:text-accent"
+                    >
+                      {office.phone}
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
           </Reveal>
 
           <Reveal delay={120}>
@@ -103,8 +132,8 @@ function Contact() {
               An hour with the studio, at a time that suits you.
             </h2>
             <p className="mt-6 max-w-md text-muted-foreground">
-              Pick a slot and we will confirm by email. Consultations run from the Rochester studio
-              or on site, whichever is more useful at this stage.
+              Pick a slot and we will confirm by email. Consultations run from any of the three
+              studios or on site, whichever is more useful at this stage.
             </p>
           </Reveal>
           <Reveal delay={120}>

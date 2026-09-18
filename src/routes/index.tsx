@@ -5,7 +5,8 @@ import { Reveal } from "@/components/site/Reveal";
 import { HeroShutter } from "@/components/site/HeroShutter";
 import { WordRise } from "@/components/site/WordRise";
 import { FrameReveal } from "@/components/site/FrameReveal";
-import { PROJECTS, coverFor } from "@/lib/projects";
+import { PROJECTS, projectLabels } from "@/lib/projects";
+import { ProjectCover } from "@/components/site/ProjectCover";
 import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
 import arc6 from "@/assets/arc6.webp";
@@ -270,19 +271,13 @@ function Home() {
                   className="card-lift card-rule group block pb-5 hover:card-rule-active"
                 >
                   <div className="overflow-hidden">
-                    <img
-                      src={coverFor(p)!}
-                      alt={p.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="aspect-4/3 w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
-                    />
+                    <ProjectCover project={p} />
                   </div>
                   <h3 className="mt-6 text-2xl transition-colors group-hover:text-accent">
                     {p.title}
                   </h3>
                   <p className="mt-2 eyebrow text-muted-foreground">
-                    {p.category} · {p.place}
+                    {projectLabels(p).join(" · ")}
                   </p>
                 </Link>
               </Reveal>
