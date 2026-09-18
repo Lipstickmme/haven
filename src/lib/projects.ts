@@ -129,6 +129,7 @@ const RAW_PROJECTS: Project[] = [
     afterCaption:
       "The gallery box cantilevered clear of the plinth, lit from within after closing.",
     parts: [
+      { title: "Bastion join", caption: "New coursing set back forty millimetres from the old." },
       {
         title: "Cantilever blades",
         caption: "Two concrete blades carry the eight-metre overhang.",
@@ -137,7 +138,6 @@ const RAW_PROJECTS: Project[] = [
         title: "Coffered roof",
         caption: "North slots, individually shuttered for the conservator.",
       },
-      { title: "Bastion join", caption: "New coursing set back forty millimetres from the old." },
       { title: "Under-plinth entry", caption: "The lobby that had to go beneath a listed wall." },
     ],
     legacy: arc4,
@@ -379,7 +379,10 @@ const RAW_PROJECTS: Project[] = [
       { title: "Continuous veining", caption: "One block, cut so the grain runs through." },
       { title: "The turn", caption: "Where counter becomes stair." },
       { title: "Washed vaults", caption: "Indirect light only; no visible fitting." },
-      { title: "Window sill", caption: "Where the stone begins." },
+      {
+        title: "Fixing the slab",
+        caption: "The counter worked in place, before the shop was fitted out around it.",
+      },
     ],
   },
   // --- newly added ----------------------------------------------------------
@@ -467,12 +470,12 @@ const RAW_PROJECTS: Project[] = [
       "The 1970s branch library before strip-out, with the architects and librarians marking up the existing plan.",
     afterCaption: "The central reading room under its clerestory, mid-afternoon.",
     parts: [
-      { title: "Central reading room", caption: "No view out, and the most-used room here." },
       { title: "Deep clerestory", caption: "No direct sun at any hour, so no blinds at all." },
       {
         title: "Perimeter lending",
         caption: "Returns, children's floor and all the street noise.",
       },
+      { title: "Central reading room", caption: "No view out, and the most-used room here." },
       { title: "Entrance corner", caption: "The one place the two zones meet." },
     ],
   },

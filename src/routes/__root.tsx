@@ -181,6 +181,10 @@ function RootComponent() {
   // unconditionally — when Supabase is unconfigured the panel says so, rather
   // than the launcher quietly not existing.
   const showChat = !(pathname.startsWith("/admin") || pathname.startsWith("/auth"));
+  // The quote card floats at the top left. Project profiles run full-bleed
+  // photography the whole way down, so there it lands on an image rather than
+  // on the pale ground it needs. Everywhere else has margins.
+  const showTestimonials = showChat && !/^\/projects\/[^/]+/.test(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -193,7 +197,7 @@ function RootComponent() {
         </main>
         <Footer />
         <ScrollUp />
-        {showChat ? <TestimonialCard /> : null}
+        {showTestimonials ? <TestimonialCard /> : null}
         {showChat ? <ChatWidget /> : null}
       </SiteSettingsProvider>
     </QueryClientProvider>
