@@ -7,7 +7,6 @@ import { PROJECTS, coverFor } from "@/lib/projects";
 import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
 import arc6 from "@/assets/arc6.webp";
-import hero2 from "@/assets/hero-2.jpg";
 import arc4 from "@/assets/arc4.webp";
 import about2 from "@/assets/about-2.jpg";
 
@@ -34,7 +33,6 @@ export const Route = createFileRoute("/")({
 /** Exteriors only. The hero is the practice's shopfront; it shows buildings. */
 const SLIDES = [
   { src: arc6, title: "Designing Your Dream, Building Your Vision" },
-  { src: hero2, title: "Structures That Hold Light and Time" },
   { src: arc5, title: "Quiet Volumes, Carefully Placed" },
   { src: arc2, title: "Civic Rooms Built to Outlast Us" },
 ];
