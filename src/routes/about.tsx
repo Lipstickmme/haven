@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { WordRise } from "@/components/site/WordRise";
 import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
 import about2 from "@/assets/about-2.jpg";
@@ -83,9 +84,10 @@ function About() {
           </Reveal>
           <Reveal delay={120}>
             <p className="eyebrow draw-rule draw-rule-in text-accent">Our approach</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">
-              We draw slowly so buildings can be built quickly
-            </h2>
+            <WordRise
+              text="We draw slowly so buildings can be built quickly"
+              className="mt-6 text-4xl leading-[1.08] md:text-5xl"
+            />
             <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
               Meastro Architecture works across housing, culture and hospitality. Each project
               begins with a week of looking: sun paths, sightlines, the noise of the street at seven
@@ -119,9 +121,10 @@ function About() {
         <div className="mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
             <p className="eyebrow draw-rule draw-rule-in text-accent">Timeline</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">
-              Twenty-two years of building
-            </h2>
+            <WordRise
+              text="Twenty-two years of building"
+              className="mt-6 text-4xl leading-[1.08] md:text-5xl"
+            />
           </Reveal>
           <div className="mt-14 border-t border-border">
             {TIMELINE.map((t, i) => (

@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { BeforeAfter } from "@/components/site/BeforeAfter";
 import { Reveal } from "@/components/site/Reveal";
+import { WordRise } from "@/components/site/WordRise";
+import { FrameReveal } from "@/components/site/FrameReveal";
 import { PROJECTS, coverFor, partsWithImages, projectBySlug, projectImage } from "@/lib/projects";
 
 export const Route = createFileRoute("/projects_/$slug")({
@@ -66,9 +68,11 @@ function ProjectProfile() {
           <p className="eyebrow text-accent-ink">
             {project.category} · {project.place}
           </p>
-          <h1 className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] md:text-7xl">
-            {project.title}
-          </h1>
+          <WordRise
+            as="h1"
+            text={project.title}
+            className="mt-6 max-w-4xl font-display text-5xl leading-[1.05] md:text-7xl"
+          />
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-foreground/75">
             {project.summary}
           </p>
@@ -169,7 +173,7 @@ function ProjectProfile() {
               {parts.map((part, i) => (
                 <Reveal key={part.title} delay={i * 90}>
                   <figure className="card-lift card-rule group m-0 pb-5">
-                    <div className="overflow-hidden">
+                    <FrameReveal delay={i * 60}>
                       <img
                         src={part.src}
                         alt={`${project.title}, ${part.title}`}
@@ -177,7 +181,7 @@ function ProjectProfile() {
                         decoding="async"
                         className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                       />
-                    </div>
+                    </FrameReveal>
                     <figcaption className="mt-5">
                       <h3 className="text-lg">{part.title}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
+import { FrameReveal } from "@/components/site/FrameReveal";
 import { CATEGORIES, DISCIPLINES, PROJECTS, coverFor, type Discipline } from "@/lib/projects";
 import arc1 from "@/assets/arc1.webp";
 
@@ -107,7 +108,7 @@ function Projects() {
                   params={{ slug: p.slug }}
                   className="card-lift card-rule group block pb-5 hover:card-rule-active"
                 >
-                  <div className="relative overflow-hidden">
+                  <FrameReveal className="relative" delay={(i % 2) * 80}>
                     <img
                       src={coverFor(p)!}
                       alt={p.title}
@@ -124,7 +125,7 @@ function Projects() {
                         {p.status}
                       </span>
                     ) : null}
-                  </div>
+                  </FrameReveal>
                   <div className="mt-6 flex items-baseline justify-between gap-6 border-t border-border pt-5">
                     <div>
                       <h2 className="text-2xl transition-colors group-hover:text-accent md:text-3xl">

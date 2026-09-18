@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 
 import { TESTIMONIALS, initialsFor, portraitFor } from "@/lib/testimonials";
 
-const ROTATE_MS = 13000;
-const FADE_MS = 700;
+const ROTATE_MS = 22000;
+const FADE_MS = 800;
 
 /**
  * A floating client quote in the top left.
@@ -53,7 +53,7 @@ export function TestimonialCard() {
   return (
     <aside
       aria-label="What our clients say"
-      className={`group pointer-events-none fixed top-28 left-5 z-40 hidden w-[23rem] transition-all duration-700 md:left-8 lg:block ${
+      className={`group pointer-events-none fixed top-28 left-5 z-40 hidden w-[27rem] transition-all duration-700 md:left-8 lg:block ${
         shown ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-3 opacity-0"
       }`}
     >
@@ -61,42 +61,58 @@ export function TestimonialCard() {
           least it takes to stay readable where the quote lands over a
           photograph. Fully transparent was illegible over the project imagery. */}
       <div
-        className={`pointer-events-auto flex gap-5 rounded-sm bg-background/55 p-5 backdrop-blur-md transition-opacity duration-700 ${
+        className={`pointer-events-auto relative flex flex-col gap-4 rounded-sm bg-background/60 p-6 backdrop-blur-md transition-opacity duration-700 ${
           visible ? "opacity-100" : "opacity-0"
         }`}
       >
-        {portrait ? (
-          <img
-            src={portrait}
-            alt=""
-            className="h-16 w-16 shrink-0 rounded-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <span
-            aria-hidden="true"
-            className="eyebrow flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-accent/40 text-accent"
-          >
-            {initialsFor(item.name)}
+        <div className="flex items-center justify-between">
+          <p className="eyebrow text-accent">Testimonials</p>
+          <span className="flex gap-1.5" aria-hidden="true">
+            {TESTIMONIALS.map((entry, i) => (
+              <span
+                key={entry.id}
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  i === index ? "w-4 bg-accent" : "w-1 bg-foreground/20"
+                }`}
+              />
+            ))}
           </span>
-        )}
+        </div>
 
-        <figure className="m-0 min-w-0">
-          <blockquote className="text-[0.975rem] leading-relaxed text-foreground/90">
-            {item.quote}
-          </blockquote>
-          <figcaption className="mt-3 text-[0.8rem] text-muted-foreground">
-            <span className="text-foreground">{item.name}</span>
-            <span className="mx-1.5 opacity-40">/</span>
-            {item.role}
-          </figcaption>
-        </figure>
+        <div className="flex gap-5">
+          {portrait ? (
+            <img
+              src={portrait}
+              alt=""
+              className="h-20 w-20 shrink-0 rounded-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="eyebrow flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-accent/40 text-accent"
+            >
+              {initialsFor(item.name)}
+            </span>
+          )}
+
+          <figure className="m-0 min-w-0">
+            <blockquote className="text-[1.05rem] leading-relaxed text-foreground/90">
+              {item.quote}
+            </blockquote>
+            <figcaption className="mt-3 text-[0.8rem] text-muted-foreground">
+              <span className="text-foreground">{item.name}</span>
+              <span className="mx-1.5 opacity-40">/</span>
+              {item.role}
+            </figcaption>
+          </figure>
+        </div>
 
         <button
           type="button"
           onClick={() => setDismissed(true)}
           aria-label="Hide client quotes"
-          className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
+          className="absolute top-3 right-3 h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
         >
           <X size={14} strokeWidth={1.5} />
         </button>

@@ -327,3 +327,91 @@
     transition-duration: 1ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Page-level motion
+   Restrained on purpose. Photography and type do the work; the movement only
+   has to make arrival feel considered rather than abrupt.
+--------------------------------------------------------------------------- */
+
+/* Headline words arrive in sequence. Distance stays small so long headlines
+   never look like they are assembling themselves. */
+@utility word-rise {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.45em);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility word-rise-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* An image that settles into its frame instead of appearing in it. */
+@utility frame-reveal {
+  clip-path: inset(0 0 8% 0);
+  transform: scale(1.04);
+  opacity: 0;
+  transition:
+    clip-path 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1400ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 700ms ease-out;
+}
+
+@utility frame-reveal-in {
+  clip-path: inset(0 0 0 0);
+  transform: none;
+  opacity: 1;
+}
+
+/* Counting figures and section rules share the same settle. */
+@utility fade-up {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility fade-up-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Nav and small interactive text get a quieter underline than link-underline. */
+@utility hairline {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -0.3rem;
+    height: 1px;
+    background-color: currentColor;
+    opacity: 0.55;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  &:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-rise,
+  .frame-reveal,
+  .fade-up {
+    transition-duration: 1ms !important;
+    transform: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+  }
+  .hairline::after {
+    transition-duration: 1ms !important;
+  }
+}

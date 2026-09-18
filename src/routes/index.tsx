@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/site/Reveal";
 import { HeroShutter } from "@/components/site/HeroShutter";
+import { WordRise } from "@/components/site/WordRise";
+import { FrameReveal } from "@/components/site/FrameReveal";
 import { PROJECTS, coverFor } from "@/lib/projects";
 import arc2 from "@/assets/arc2.webp";
 import arc5 from "@/assets/arc5.webp";
@@ -178,7 +180,10 @@ function Home() {
 
           <Reveal delay={120} className="lg:pl-6">
             <p className="eyebrow draw-rule draw-rule-in text-accent">About the studio</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">About Meastro Architecture</h2>
+            <WordRise
+              text="About Meastro Architecture"
+              className="mt-6 text-4xl leading-[1.08] md:text-6xl"
+            />
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
               We are an architecture and interior design studio drawn to clarity: rooms that hold
               daylight well, plans that make sense at walking speed, and details that will still
@@ -253,7 +258,7 @@ function Home() {
         <div className="mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
             <p className="eyebrow draw-rule draw-rule-in text-accent">Selected work</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">Recent projects</h2>
+            <WordRise text="Recent projects" className="mt-6 text-4xl leading-[1.08] md:text-6xl" />
           </Reveal>
 
           <div className="mt-16 grid gap-10 md:grid-cols-3">
@@ -309,9 +314,10 @@ function Home() {
 
       <section className="bg-background py-24 md:py-32">
         <Reveal className="mx-auto max-w-3xl px-5 text-center md:px-10">
-          <h2 className="text-4xl leading-[1.08] md:text-6xl">
-            Have a site, a brief, or just an instinct?
-          </h2>
+          <WordRise
+            text="Have a site, a brief, or just an instinct?"
+            className="text-4xl leading-[1.08] md:text-6xl"
+          />
           <Link
             to="/contact"
             className="mt-10 inline-flex items-center gap-4 bg-primary px-9 py-4 eyebrow text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"

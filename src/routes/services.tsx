@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import arc4 from "@/assets/arc4.webp";
 import { Reveal } from "@/components/site/Reveal";
+import { WordRise } from "@/components/site/WordRise";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -126,7 +127,10 @@ function Services() {
         <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
             <p className="eyebrow text-accent-ink">How we work</p>
-            <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">From brief to handover</h2>
+            <WordRise
+              text="From brief to handover"
+              className="mt-6 text-4xl leading-[1.08] md:text-5xl"
+            />
           </Reveal>
           <div className="mt-16 grid gap-10 md:grid-cols-4">
             {PROCESS.map((p, i) => (
