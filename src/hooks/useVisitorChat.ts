@@ -17,7 +17,7 @@ export type VisitorChat = {
   error: string | null;
   sending: boolean;
   start: (input: { name: string; email: string; message: string }) => Promise<void>;
-  send: (body: string) => Promise<void>;
+  send: (body: string) => Promise<boolean>;
   reset: () => void;
 };
 
@@ -275,8 +275,8 @@ export function useVisitorChat(): VisitorChat {
   );
 
   const send = useCallback(
-    async (body: string) => {
-      if (!sessionId || body.trim() === "") return;
+    async (body: string): Promise<boolean> => {
+      if (!sessionId || body.trim() === "") return false;
       setSending(true);
       setError(null);
       try {
@@ -290,8 +290,10 @@ export function useVisitorChat(): VisitorChat {
 
         if (insertError) throw insertError;
         mergeMessage(message as ChatMessage);
+        return true;
       } catch (caught) {
         setError(readableError(caught));
+        return false;
       } finally {
         setSending(false);
       }

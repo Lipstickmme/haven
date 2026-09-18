@@ -9,6 +9,8 @@ export type RealtimeRows<T> = {
   /** False when the realtime channel is not subscribed; the list then polls. */
   live: boolean;
   refresh: () => void;
+  /** Merge a row written by this client, without waiting for the round trip. */
+  upsert: (row: T) => void;
 };
 
 type Options = {
@@ -39,6 +41,22 @@ export function useRealtimeRows<T extends { id: string }>(
   const loadedOnce = useRef(false);
 
   const refresh = useCallback(() => setNonce((value) => value + 1), []);
+
+  const sortRows = useCallback(
+    (list: T[]) =>
+      [...list].sort((a, b) => {
+        const left = String((a as Record<string, unknown>)[orderBy] ?? "");
+        const right = String((b as Record<string, unknown>)[orderBy] ?? "");
+        return ascending ? left.localeCompare(right) : right.localeCompare(left);
+      }),
+    [orderBy, ascending],
+  );
+
+  const upsert = useCallback(
+    (row: T) =>
+      setRows((current) => sortRows([...current.filter((item) => item.id !== row.id), row])),
+    [sortRows],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -74,13 +92,6 @@ export function useRealtimeRows<T extends { id: string }>(
   useEffect(() => {
     if (!enabled) return;
 
-    const sort = (list: T[]) =>
-      [...list].sort((a, b) => {
-        const left = String((a as Record<string, unknown>)[orderBy] ?? "");
-        const right = String((b as Record<string, unknown>)[orderBy] ?? "");
-        return ascending ? left.localeCompare(right) : right.localeCompare(left);
-      });
-
     const channel = supabase
       .channel(`rows:${table}:${filterColumn ?? "all"}:${filterValue ?? ""}`)
       .on(
@@ -100,7 +111,7 @@ export function useRealtimeRows<T extends { id: string }>(
             const next = payload.new as T;
             if (!next?.id) return current;
             const without = current.filter((row) => row.id !== next.id);
-            return sort([...without, next]);
+            return sortRows([...without, next]);
           });
         },
       )
@@ -117,7 +128,7 @@ export function useRealtimeRows<T extends { id: string }>(
       setLive(false);
       void supabase.removeChannel(channel);
     };
-  }, [table, filterColumn, filterValue, enabled, orderBy, ascending]);
+  }, [table, filterColumn, filterValue, enabled, sortRows]);
 
   // Poll regardless: slowly as a safety net when the channel is subscribed,
   // quickly when it is not, so the dashboard keeps working even where realtime
@@ -128,5 +139,5 @@ export function useRealtimeRows<T extends { id: string }>(
     return () => clearInterval(id);
   }, [enabled, live, refresh]);
 
-  return { rows, loading, error, live, refresh };
+  return { rows, loading, error, live, refresh, upsert };
 }

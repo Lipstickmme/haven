@@ -41,17 +41,17 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Halden Kommune",
   },
   {
-    id: "priya-raman",
+    id: "claire-bennett",
     quote:
       "The detailing held up on site. Nine weeks of frame went in over a summer holiday with no surprises.",
-    name: "Priya Raman",
+    name: "Claire Bennett",
     role: "Glasgow City Council",
   },
   {
-    id: "michael-obi",
+    id: "michael-brandt",
     quote:
       "Our collection has never had light this even. They modelled it against our own conservation limits first.",
-    name: "Michael Obi",
+    name: "Michael Brandt",
     role: "Museum Rotterdam",
   },
   {
@@ -60,6 +60,27 @@ export const TESTIMONIALS: Testimonial[] = [
       "Thirty-one rooms and no guest looks into another. That took setting out nobody else offered to do.",
     name: "Elena Costa",
     role: "Travertine Group",
+  },
+  {
+    id: "margaret-iles",
+    quote:
+      "They put the reading room in the middle with no view out, and told us it would be the busiest space. It is.",
+    name: "Margaret Iles",
+    role: "Norfolk Libraries",
+  },
+  {
+    id: "daniel-sato",
+    quote:
+      "Two listed silos we could not touch, and they found a building in the gap between them.",
+    name: "Daniel Sato",
+    role: "Granary Quarter Ltd",
+  },
+  {
+    id: "hiroshi-tan",
+    quote:
+      "The geotechnical report wrote half the plan and they never once pretended otherwise. Straight answers throughout.",
+    name: "Hiroshi Tan",
+    role: "Quarry Edge Ltd",
   },
 ];
 

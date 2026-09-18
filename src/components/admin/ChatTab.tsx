@@ -57,7 +57,11 @@ export function ChatTab({ enabled }: { enabled: boolean }) {
 }
 
 function Conversation({ session, enabled }: { session: ChatSession; enabled: boolean }) {
-  const { rows: messages, error } = useRealtimeRows<ChatMessage>("chat_messages", {
+  const {
+    rows: messages,
+    error,
+    upsert,
+  } = useRealtimeRows<ChatMessage>("chat_messages", {
     orderBy: "created_at",
     ascending: true,
     enabled,
@@ -83,11 +87,22 @@ function Conversation({ session, enabled }: { session: ChatSession; enabled: boo
     void (async () => {
       // RLS lets an admin post only as 'agent'; the trigger leaves the status
       // alone for agent replies, so answering does not reopen a closed thread.
-      const { error: insertError } = await supabase
+      //
+      // .select().single() and an immediate upsert, so the reply appears the
+      // moment it is written. Without it the message only showed when realtime
+      // delivered or the poll came round, which could be twenty seconds.
+      const { data, error: insertError } = await supabase
         .from("chat_messages")
-        .insert({ session_id: session.id, sender: "agent", body });
-      if (insertError) setSendError(insertError.message);
-      else setDraft("");
+        .insert({ session_id: session.id, sender: "agent", body })
+        .select("*")
+        .single();
+
+      if (insertError) {
+        setSendError(insertError.message);
+      } else {
+        if (data) upsert(data as ChatMessage);
+        setDraft("");
+      }
       setSending(false);
     })();
   }

@@ -27,8 +27,13 @@ export function ChatWidget() {
     event.preventDefault();
     const body = draft.trim();
     if (!body) return;
+    // Clear optimistically so typing feels responsive, but put the text back if
+    // the write fails. Losing what you typed with only a thin banner to explain
+    // it reads as "my messages do not send".
     setDraft("");
-    void chat.send(body);
+    void chat.send(body).then((ok) => {
+      if (!ok) setDraft(body);
+    });
   }
 
   return (
@@ -57,7 +62,10 @@ export function ChatWidget() {
           </header>
 
           {chat.error && chat.status !== "error" ? (
-            <p className="border-b border-border bg-secondary px-5 py-3 text-xs leading-relaxed text-muted-foreground">
+            <p
+              role="alert"
+              className="border-b border-destructive/30 bg-destructive/10 px-5 py-3 text-xs leading-relaxed text-foreground"
+            >
               {chat.error}
             </p>
           ) : null}
