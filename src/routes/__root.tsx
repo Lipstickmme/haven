@@ -18,6 +18,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ScrollUp } from "@/components/site/ScrollUp";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { TestimonialCard } from "@/components/site/TestimonialCard";
 
 function NotFoundComponent() {
   return (
@@ -149,7 +150,7 @@ function ConfigNotice({ missing }: { missing: PublicConfig["missing"] }) {
       <ul className="mt-2 space-y-1 text-ink-foreground/60">
         {missing.map((entry) => (
           <li key={entry.label}>
-            <span className="text-ink-foreground">{entry.label}</span> — set any one of{" "}
+            <span className="text-ink-foreground">{entry.label}</span>, set any one of{" "}
             <code className="text-xs">{entry.names.join(", ")}</code>
           </li>
         ))}
@@ -192,6 +193,7 @@ function RootComponent() {
         </main>
         <Footer />
         <ScrollUp />
+        {showChat ? <TestimonialCard /> : null}
         {showChat ? <ChatWidget /> : null}
       </SiteSettingsProvider>
     </QueryClientProvider>

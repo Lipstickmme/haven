@@ -16,9 +16,9 @@ export const Route = createFileRoute("/projects_/$slug")({
     if (!project) return {};
     return {
       meta: [
-        { title: `${project.title} — Meastro Architecture` },
+        { title: `${project.title}. Meastro Architecture` },
         { name: "description", content: project.summary },
-        { property: "og:title", content: `${project.title} — Meastro Architecture` },
+        { property: "og:title", content: `${project.title}. Meastro Architecture` },
         { property: "og:description", content: project.summary },
       ],
     };
@@ -76,7 +76,7 @@ function ProjectProfile() {
             <Link to="/projects" className="hover:text-accent-ink">
               Projects
             </Link>
-            <span className="h-px w-8 bg-ink-foreground/30" />
+            <span className="opacity-40">/</span>
             {project.title}
           </p>
         </div>
@@ -99,7 +99,7 @@ function ProjectProfile() {
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-40" />
         <div className="relative mx-auto grid max-w-[92rem] gap-12 px-5 md:px-10 lg:grid-cols-[18rem_1fr]">
           <Reveal>
-            <p className="eyebrow text-accent">The project</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">The project</p>
           </Reveal>
           <Reveal delay={100} className="max-w-3xl space-y-6">
             {project.body.map((paragraph) => (
@@ -119,7 +119,7 @@ function ProjectProfile() {
         <section className="border-t border-border bg-secondary py-20 md:py-28">
           <div className="mx-auto max-w-[92rem] px-5 md:px-10">
             <Reveal>
-              <p className="eyebrow text-accent">
+              <p className="eyebrow draw-rule draw-rule-in text-accent">
                 {before && after ? "Before and after" : "The building"}
               </p>
               <h2 className="mt-5 max-w-2xl font-display text-3xl leading-tight md:text-4xl">
@@ -163,7 +163,7 @@ function ProjectProfile() {
         <section className="bg-background py-20 md:py-28">
           <div className="mx-auto max-w-[92rem] px-5 md:px-10">
             <Reveal>
-              <p className="eyebrow text-accent">Parts of the building</p>
+              <p className="eyebrow draw-rule draw-rule-in text-accent">Parts of the building</p>
             </Reveal>
             <div className="mt-10 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
               {parts.map((part, i) => (
@@ -172,7 +172,7 @@ function ProjectProfile() {
                     <div className="overflow-hidden">
                       <img
                         src={part.src}
-                        alt={`${project.title} — ${part.title}`}
+                        alt={`${project.title}, ${part.title}`}
                         loading="lazy"
                         decoding="async"
                         className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"

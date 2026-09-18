@@ -4,19 +4,25 @@ import { ArrowUpRight } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal } from "@/components/site/Reveal";
-import { CATEGORIES, PROJECTS, coverFor } from "@/lib/projects";
+import { CATEGORIES, DISCIPLINES, PROJECTS, coverFor, type Discipline } from "@/lib/projects";
 import arc1 from "@/assets/arc1.webp";
 
+type Search = { discipline?: Discipline };
+
 export const Route = createFileRoute("/projects")({
+  validateSearch: (search: Record<string, unknown>): Search => {
+    const value = search["discipline"];
+    return DISCIPLINES.includes(value as Discipline) ? { discipline: value as Discipline } : {};
+  },
   head: () => ({
     meta: [
-      { title: "Projects — Meastro Architecture" },
+      { title: "Projects. Meastro Architecture" },
       {
         name: "description",
         content:
           "Twenty residential, cultural, civic, education, hospitality, workplace and retail projects by Meastro Architecture.",
       },
-      { property: "og:title", content: "Projects — Meastro Architecture" },
+      { property: "og:title", content: "Projects. Meastro Architecture" },
       {
         property: "og:description",
         content: "Built and in-progress work, each with a before-and-after record.",
@@ -27,11 +33,23 @@ export const Route = createFileRoute("/projects")({
 });
 
 function Projects() {
+  const { discipline } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("All");
-  const list = useMemo(
-    () => (cat === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === cat)),
-    [cat],
+
+  const byDiscipline = useMemo(
+    () => (discipline ? PROJECTS.filter((p) => p.discipline === discipline) : PROJECTS),
+    [discipline],
   );
+  const list = useMemo(
+    () => (cat === "All" ? byDiscipline : byDiscipline.filter((p) => p.category === cat)),
+    [byDiscipline, cat],
+  );
+
+  const setDiscipline = (next: Discipline | undefined) => {
+    setCat("All");
+    void navigate({ search: next ? { discipline: next } : {}, replace: true });
+  };
 
   return (
     <>
@@ -40,13 +58,29 @@ function Projects() {
         title="Projects"
         crumb="Projects"
         image={arc1}
-        lead={`${PROJECTS.length} built and in-progress projects. Each one has its own record — what was there before, what is there now, and the parts worth looking at closely.`}
+        lead={`${PROJECTS.length} built and in-progress projects. Each one has its own record, what was there before, what is there now, and the parts worth looking at closely.`}
       />
 
       <section className="relative bg-background py-20 md:py-28">
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-40" />
         <div className="relative mx-auto max-w-[92rem] px-5 md:px-10">
-          <Reveal className="flex flex-wrap items-center gap-3 border-b border-border pb-8">
+          <Reveal className="flex flex-wrap items-center gap-8 border-b border-border pb-6">
+            {[undefined, ...DISCIPLINES].map((value) => (
+              <button
+                key={value ?? "all"}
+                onClick={() => setDiscipline(value)}
+                className={`font-display text-2xl transition-colors md:text-3xl ${
+                  discipline === value
+                    ? "text-foreground"
+                    : "text-muted-foreground/50 hover:text-muted-foreground"
+                }`}
+              >
+                {value ?? "All work"}
+              </button>
+            ))}
+          </Reveal>
+
+          <Reveal className="mt-8 flex flex-wrap items-center gap-3 border-b border-border pb-8">
             {CATEGORIES.map((c) => (
               <button
                 key={c}
@@ -79,7 +113,7 @@ function Projects() {
                       alt={p.title}
                       loading="lazy"
                       decoding="async"
-                      className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      className="aspect-4/3 w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                     />
                     <span className="absolute inset-0 bg-ink/0 transition-colors duration-700 group-hover:bg-ink/12" />
                     <span className="absolute right-6 bottom-6 flex h-12 w-12 translate-y-3 items-center justify-center rounded-full bg-background text-foreground opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">

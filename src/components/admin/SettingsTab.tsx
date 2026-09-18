@@ -45,7 +45,7 @@ export function SettingsTab({ enabled }: { enabled: boolean }) {
     void (async () => {
       const { data, error: loadError } = await supabase
         .from("site_settings")
-        .select("email, website, hours")
+        .select("email, website, address, hours")
         .eq("id", "default")
         .maybeSingle();
 
@@ -60,6 +60,7 @@ export function SettingsTab({ enabled }: { enabled: boolean }) {
         setValues({
           email: String(data["email"] ?? ""),
           website: String(data["website"] ?? ""),
+          address: String(data["address"] ?? ""),
           hours: String(data["hours"] ?? ""),
         });
       }
@@ -81,7 +82,12 @@ export function SettingsTab({ enabled }: { enabled: boolean }) {
     void (async () => {
       const { error: saveError } = await supabase
         .from("site_settings")
-        .update({ email: values.email, website: values.website, hours: values.hours })
+        .update({
+          email: values.email,
+          website: values.website,
+          address: values.address,
+          hours: values.hours,
+        })
         .eq("id", "default");
 
       if (saveError) setError(saveError.message);
@@ -111,7 +117,7 @@ export function SettingsTab({ enabled }: { enabled: boolean }) {
               id={`setting-${field.key}`}
               type={field.type}
               required
-              maxLength={200}
+              maxLength={300}
               value={values[field.key]}
               onChange={(event) => {
                 const next = event.target.value;

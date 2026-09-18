@@ -19,7 +19,7 @@ export const loadSiteSettings = createServerFn({ method: "GET" }).handler(
       const { data, error } = await shared
         .adminClient()
         .from("site_settings")
-        .select("email, website, hours")
+        .select("email, website, address, hours")
         .eq("id", "default")
         .maybeSingle();
 
@@ -28,6 +28,7 @@ export const loadSiteSettings = createServerFn({ method: "GET" }).handler(
       return {
         email: String(data["email"] ?? "") || DEFAULT_SITE_SETTINGS.email,
         website: String(data["website"] ?? "") || DEFAULT_SITE_SETTINGS.website,
+        address: String(data["address"] ?? "") || DEFAULT_SITE_SETTINGS.address,
         hours: String(data["hours"] ?? "") || DEFAULT_SITE_SETTINGS.hours,
       };
     } catch {

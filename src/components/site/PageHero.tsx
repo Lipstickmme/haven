@@ -43,7 +43,7 @@ export function PageHero({
           <Link to="/" className="hover:text-accent">
             Home
           </Link>
-          <span className="h-px w-8 bg-ink-foreground/30" />
+          <span className="opacity-40">/</span>
           {crumb}
         </p>
       </div>

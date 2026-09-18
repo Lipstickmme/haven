@@ -14,7 +14,7 @@ import about2 from "@/assets/about-2.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Meastro Architecture — Architecture & Interior Design" },
+      { title: "Meastro Architecture. Architecture & Interior Design" },
       {
         name: "description",
         content:
@@ -44,12 +44,6 @@ const STATS = [
   { value: "200+", label: "Clients" },
   { value: "11", label: "Awards" },
   { value: "62", label: "Experts" },
-];
-
-const SKILLS = [
-  { label: "Architecture", value: 98 },
-  { label: "Interior Design", value: 99 },
-  { label: "Sustainable Design Solutions", value: 95 },
 ];
 
 const SERVICES = [
@@ -109,16 +103,29 @@ function Home() {
           >
             {SLIDES[i]!.title}
           </h1>
-          <div className="mt-12 flex justify-center">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/projects"
-              className="group inline-flex items-center gap-4 border border-ink-foreground/40 px-8 py-4 eyebrow text-ink-foreground transition-colors hover:border-accent-ink hover:text-accent-ink"
+              search={{ discipline: "Architecture" }}
+              className="group eyebrow inline-flex items-center gap-4 bg-ink-foreground px-8 py-4 text-ink transition-colors hover:bg-accent-ink"
             >
-              View Selected Work
+              Architecture
               <ArrowUpRight
                 size={16}
                 strokeWidth={1.4}
-                className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+                className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
+              />
+            </Link>
+            <Link
+              to="/projects"
+              search={{ discipline: "Interior Design" }}
+              className="group eyebrow inline-flex items-center gap-4 border border-ink-foreground/40 px-8 py-4 text-ink-foreground transition-colors hover:border-accent-ink hover:text-accent-ink"
+            >
+              Interior Design
+              <ArrowUpRight
+                size={16}
+                strokeWidth={1.4}
+                className="transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
               />
             </Link>
           </div>
@@ -172,7 +179,7 @@ function Home() {
           </Reveal>
 
           <Reveal delay={120} className="lg:pl-6">
-            <p className="eyebrow text-accent">About the studio</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">About the studio</p>
             <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">About Meastro Architecture</h2>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
               We are an architecture and interior design studio drawn to clarity: rooms that hold
@@ -181,22 +188,15 @@ function Home() {
               people who live in it.
             </p>
 
-            <div className="mt-12 space-y-8">
-              {SKILLS.map((s, idx) => (
-                <Reveal key={s.label} delay={200 + idx * 100}>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-sm font-medium">{s.label}</span>
-                    <span className="text-sm font-medium">{s.value}%</span>
-                  </div>
-                  <div className="mt-3 h-px w-full bg-border">
-                    <div
-                      className="h-px bg-accent transition-[width] duration-[1400ms] ease-out"
-                      style={{ width: `${s.value}%` }}
-                    />
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal delay={220}>
+              <Link
+                to="/about"
+                className="eyebrow link-underline mt-10 inline-flex items-center gap-3 hover:text-accent"
+              >
+                More about the studio
+                <ArrowUpRight size={15} strokeWidth={1.5} />
+              </Link>
+            </Reveal>
           </Reveal>
         </div>
       </section>
@@ -219,7 +219,7 @@ function Home() {
         <div className="mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal className="flex flex-wrap items-end justify-between gap-8">
             <div>
-              <p className="eyebrow text-accent">What we do</p>
+              <p className="eyebrow draw-rule draw-rule-in text-accent">What we do</p>
               <h2 className="mt-6 max-w-2xl text-4xl leading-[1.08] md:text-6xl">
                 Four disciplines, one drawing set
               </h2>
@@ -236,7 +236,7 @@ function Home() {
                 delay={idx * 90}
                 className="group border-b border-border p-8 transition-colors hover:bg-secondary md:p-12 md:[&:nth-child(odd)]:border-r"
               >
-                <p className="eyebrow text-accent">{s.n}</p>
+                <p className="eyebrow draw-rule draw-rule-in text-accent">{s.n}</p>
                 <h3 className="mt-6 text-2xl md:text-3xl">{s.title}</h3>
                 <p className="mt-4 max-w-md text-muted-foreground">{s.body}</p>
                 <ArrowUpRight
@@ -254,7 +254,7 @@ function Home() {
       <section className="bg-secondary py-24 md:py-36">
         <div className="mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
-            <p className="eyebrow text-accent">Selected work</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">Selected work</p>
             <h2 className="mt-6 text-4xl leading-[1.08] md:text-6xl">Recent projects</h2>
           </Reveal>
 
@@ -272,7 +272,7 @@ function Home() {
                       alt={p.title}
                       loading="lazy"
                       decoding="async"
-                      className="aspect-4/3 w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                      className="aspect-4/3 w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                     />
                   </div>
                   <h3 className="mt-6 text-2xl transition-colors group-hover:text-accent">

@@ -11,19 +11,22 @@ export const SITE = {
   domain: "meastroarchitecture.com",
   website: "www.meastroarchitecture.com",
   email: "frontdesk@meastroarchitecture.com",
-  hours: "Monday – Friday, 09:00 – 18:00",
+  address: "54-A Sager Dr, Rochester, NY 14607, United States",
+  hours: "Monday. Friday, 09:00, 18:00",
 } as const;
 
 /** The editable subset. Keys match the columns of `site_settings`. */
 export type SiteSettings = {
   email: string;
   website: string;
+  address: string;
   hours: string;
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   email: SITE.email,
   website: SITE.website,
+  address: SITE.address,
   hours: SITE.hours,
 };
 
@@ -32,6 +35,7 @@ export function contactDetails(settings: SiteSettings) {
   return [
     { label: "Website", value: settings.website },
     { label: "Email Address", value: settings.email },
+    { label: "Office Address", value: settings.address },
   ];
 }
 

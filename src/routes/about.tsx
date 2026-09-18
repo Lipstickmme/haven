@@ -8,7 +8,7 @@ import about2 from "@/assets/about-2.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Meastro Architecture" },
+      { title: "About. Meastro Architecture" },
       {
         name: "description",
         content:
@@ -57,7 +57,7 @@ function About() {
         title="Architecture made to age well"
         crumb="About"
         image={arc2}
-        lead="Twenty-two years of drawing, detailing and building in Rochester and beyond — a practice organised around the long life of a building rather than the short life of a style."
+        lead="Twenty-two years of drawing, detailing and building in Rochester and beyond, a practice organised around the long life of a building rather than the short life of a style."
       />
 
       <section className="relative bg-background py-24 md:py-32">
@@ -82,7 +82,7 @@ function About() {
             />
           </Reveal>
           <Reveal delay={120}>
-            <p className="eyebrow text-accent">Our approach</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">Our approach</p>
             <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">
               We draw slowly so buildings can be built quickly
             </h2>
@@ -93,9 +93,9 @@ function About() {
               never has to guess.
             </p>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              We keep the team deliberately mixed — architects beside interior designers,
-              researchers beside model makers — so that structure, light and material are decided in
-              the same room.
+              We keep the team deliberately mixed, architects beside interior designers, researchers
+              beside model makers, so that structure, light and material are decided in the same
+              room.
             </p>
           </Reveal>
         </div>
@@ -106,7 +106,7 @@ function About() {
           <div className="grid gap-10 md:grid-cols-3">
             {VALUES.map((v, i) => (
               <Reveal key={v.n} delay={i * 110} className="border-t border-foreground/20 pt-8">
-                <p className="eyebrow text-accent">{v.n}</p>
+                <p className="eyebrow draw-rule draw-rule-in text-accent">{v.n}</p>
                 <h3 className="mt-5 text-2xl">{v.title}</h3>
                 <p className="mt-3 text-muted-foreground">{v.body}</p>
               </Reveal>
@@ -118,7 +118,7 @@ function About() {
       <section className="bg-background py-24 md:py-32">
         <div className="mx-auto max-w-[92rem] px-5 md:px-10">
           <Reveal>
-            <p className="eyebrow text-accent">Timeline</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">Timeline</p>
             <h2 className="mt-6 text-4xl leading-[1.08] md:text-5xl">
               Twenty-two years of building
             </h2>

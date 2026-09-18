@@ -7,13 +7,13 @@ import { Reveal } from "@/components/site/Reveal";
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "Services — Meastro Architecture" },
+      { title: "Services. Meastro Architecture" },
       {
         name: "description",
         content:
           "Architectural design, interior architecture, masterplanning, sustainability consulting, visualisation and site supervision.",
       },
-      { property: "og:title", content: "Services — Meastro Architecture" },
+      { property: "og:title", content: "Services. Meastro Architecture" },
       {
         property: "og:description",
         content: "Six disciplines, from first sketch to final site inspection.",
@@ -102,7 +102,7 @@ function Services() {
                 delay={i * 80}
                 className="group border-b border-border p-8 transition-colors hover:bg-secondary md:p-10 md:[&:not(:nth-child(3n))]:border-r"
               >
-                <p className="eyebrow text-accent">{s.n}</p>
+                <p className="eyebrow draw-rule draw-rule-in text-accent">{s.n}</p>
                 <h2 className="mt-6 text-2xl md:text-3xl">{s.title}</h2>
                 <p className="mt-4 text-muted-foreground">{s.body}</p>
                 <ul className="mt-6 flex flex-wrap gap-2">

@@ -6,7 +6,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff sign in — Meastro Architecture" },
+      { title: "Staff sign in. Meastro Architecture" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -35,8 +35,8 @@ function AuthPage() {
         <p className="eyebrow text-accent">Meastro Architecture</p>
         <h1 className="mt-4 font-display text-4xl">Staff sign in</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          For the studio dashboard. Visitors do not need an account — the chat widget signs itself
-          in anonymously.
+          For the studio dashboard. Visitors do not need an account, the chat widget signs itself in
+          anonymously.
         </p>
 
         <form onSubmit={onSubmit} className="mt-10 space-y-8">

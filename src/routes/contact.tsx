@@ -13,7 +13,7 @@ import type { SubmitFormInput } from "@/lib/api/forms";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Meastro Architecture" },
+      { title: "Contact. Meastro Architecture" },
       {
         name: "description",
         content:
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact Meastro Architecture" },
       {
         property: "og:description",
-        content: "Rochester, NY studio — tell us about your site and brief.",
+        content: "Rochester, NY studio, tell us about your site and brief.",
       },
     ],
   }),
@@ -78,7 +78,7 @@ function Contact() {
         <div className="pointer-events-none absolute inset-0 plan-grid opacity-60" />
         <div className="relative mx-auto grid max-w-[92rem] gap-16 px-5 md:px-10 lg:grid-cols-[1fr_1.15fr]">
           <Reveal>
-            <p className="eyebrow text-accent">Studio details</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">Studio details</p>
             <dl className="mt-10 space-y-9">
               {details.map((detail) => (
                 <div key={detail.label} className="border-b border-border pb-6">
@@ -98,7 +98,7 @@ function Contact() {
       <section className="border-t border-border bg-secondary py-24 md:py-32">
         <div className="mx-auto grid max-w-[92rem] gap-16 px-5 md:px-10 lg:grid-cols-[1fr_1.15fr]">
           <Reveal>
-            <p className="eyebrow text-accent">Book a consultation</p>
+            <p className="eyebrow draw-rule draw-rule-in text-accent">Book a consultation</p>
             <h2 className="mt-6 font-display text-4xl leading-tight md:text-5xl">
               An hour with the studio, at a time that suits you.
             </h2>
@@ -146,9 +146,9 @@ function EnquiryForm() {
   if (form.success) {
     return (
       <div>
-        <p className="eyebrow text-accent">Project enquiry</p>
+        <p className="eyebrow draw-rule draw-rule-in text-accent">Project enquiry</p>
         <p className="mt-10 font-display text-3xl leading-snug">
-          Thank you — we have it. Someone from the studio will reply within a working day.
+          Thank you, we have it. Someone from the studio will reply within a working day.
         </p>
         <button
           type="button"
@@ -163,7 +163,7 @@ function EnquiryForm() {
 
   return (
     <>
-      <p className="eyebrow text-accent">Project enquiry</p>
+      <p className="eyebrow draw-rule draw-rule-in text-accent">Project enquiry</p>
       <form onSubmit={form.onSubmit} className="relative mt-10 space-y-8">
         <Honeypot
           id="enquiry-website"

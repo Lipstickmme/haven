@@ -11,7 +11,7 @@ import { useAdminAuth, type AdminAuth } from "@/hooks/useAdminAuth";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Studio dashboard — Meastro Architecture" },
+      { title: "Studio dashboard. Meastro Architecture" },
       { name: "robots", content: "noindex" },
     ],
   }),

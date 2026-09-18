@@ -41,12 +41,18 @@ export function projectImage(slug: string, role: ImageRole): string | null {
 export type Category =
   "Residential" | "Cultural" | "Civic" | "Hospitality" | "Workplace" | "Retail" | "Education";
 
+export type Discipline = "Architecture" | "Interior Design";
+
+export const DISCIPLINES: Discipline[] = ["Architecture", "Interior Design"];
+
 export type Part = { title: string; caption: string };
 
 export type Project = {
   slug: string;
   title: string;
   category: Category;
+  /** Which side of the practice led the commission. */
+  discipline: Discipline;
   place: string;
   year: string;
   status: "Built" | "On site" | "In design";
@@ -69,6 +75,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "halden-civic-centre",
     title: "Halden Civic Centre",
     category: "Civic",
+    discipline: "Architecture",
     place: "Oslo",
     year: "2025",
     status: "Built",
@@ -78,7 +85,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "A single folded roof gathers three civic functions that had been scattered across four rented floors, and gives the town a room it can actually assemble in.",
     body: [
-      "The brief asked for offices. The site — a sloping municipal car park with a view back over the fjord — asked for something more public, so the first drawing we made was of the roof, not the plan. A board-marked concrete plane steps down the slope in three bays, one for each function, and the space it leaves underneath is the hall.",
+      "The brief asked for offices. The site, a sloping municipal car park with a view back over the fjord, asked for something more public, so the first drawing we made was of the roof, not the plan. A board-marked concrete plane steps down the slope in three bays, one for each function, and the space it leaves underneath is the hall.",
       "Everything structural is left visible. The shuttering boards were milled from spruce felled during site clearance and reused as formwork, so the grain in the soffit is the grain of the trees that stood here. Services run in an exposed tray below the slab rather than in a ceiling void, which kept the floor-to-floor low enough to stay under the ridge height the planners would accept.",
       "The council chamber sits at the highest bay, glazed on two sides. It was the one room the client wanted opaque; we argued for glass and lost, then won on appeal when the accessibility review pointed out that a visible chamber is a legible one.",
     ],
@@ -103,6 +110,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "bastion-arts-foundation",
     title: "Bastion Arts Foundation",
     category: "Cultural",
+    discipline: "Architecture",
     place: "Antwerp",
     year: "2025",
     status: "Built",
@@ -112,7 +120,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "A private collection opened to the public, with the galleries lifted a full storey so the ground can stay a street rather than a lobby.",
     body: [
-      "The foundation owned a corner plot with a nineteenth-century bastion wall running through it — listed, immovable, and exactly where a lobby would want to be. So the lobby went under the wall and the galleries went over it, cantilevered eight metres clear on two concrete blades.",
+      "The foundation owned a corner plot with a nineteenth-century bastion wall running through it, listed, immovable, and exactly where a lobby would want to be. So the lobby went under the wall and the galleries went over it, cantilevered eight metres clear on two concrete blades.",
       "The upper box is deliberately blind. Works in the collection are light-sensitive and the trustees wanted no daylight at all; we gave them a coffered roof carrying north-facing slots that can be shuttered individually, which satisfied the conservator and kept the rooms from feeling like a bunker.",
       "The plinth is new masonry laid in the same coursing as the bastion, but set back forty millimetres so the join reads as a shadow rather than a pretence.",
     ],
@@ -138,6 +146,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "lantern-house",
     title: "Lantern House",
     category: "Residential",
+    discipline: "Architecture",
     place: "Connecticut",
     year: "2024",
     status: "Built",
@@ -147,7 +156,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "A replacement dwelling on the footprint of a 1960s ranch house, organised around the one thing the old house ignored: the tree line to the west.",
     body: [
-      "The existing house sat square to the road and turned its back on four acres of maple. We kept the footprint — planning was far easier that way — and rotated everything inside it fifteen degrees, so every principal room now looks down the slope instead of across it.",
+      "The existing house sat square to the road and turned its back on four acres of maple. We kept the footprint, planning was far easier that way, and rotated everything inside it fifteen degrees, so every principal room now looks down the slope instead of across it.",
       "The upper floor is a continuous glazed band set between two render planes. At night the reveal disappears and the house reads as a single lit volume, which is where the name came from and which the neighbours, we are told, have mixed feelings about.",
       "Heating is a ground loop under the old driveway. Reusing that excavation paid for roughly half the borehole cost.",
     ],
@@ -166,6 +175,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "carriage-lane-house",
     title: "Carriage Lane House",
     category: "Residential",
+    discipline: "Architecture",
     place: "Rochester",
     year: "2023",
     status: "Built",
@@ -197,6 +207,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "cliff-terrace-residence",
     title: "Cliff Terrace Residence",
     category: "Residential",
+    discipline: "Architecture",
     place: "Amalfi",
     year: "2023",
     status: "Built",
@@ -225,6 +236,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "fold-museum-annex",
     title: "Fold Museum Annex",
     category: "Cultural",
+    discipline: "Architecture",
     place: "Rotterdam",
     year: "2024",
     status: "Built",
@@ -234,7 +246,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "An annex for works on paper, where the entire architectural problem was delivering north light without delivering ultraviolet.",
     body: [
-      "Prints tolerate roughly fifty lux. That is not much, and it has to be flat — a bright patch crossing a sheet over a season does measurable damage. The roof folds accordingly: eleven north-facing facets, each one sized from a daylight model run against the collection's own conservation limits.",
+      "Prints tolerate roughly fifty lux. That is not much, and it has to be flat, a bright patch crossing a sheet over a season does measurable damage. The roof folds accordingly: eleven north-facing facets, each one sized from a daylight model run against the collection's own conservation limits.",
       "Below the folds the plan is almost boringly simple: a single top-lit hall with the study rooms and stores banked along the blind south wall, where the plant also sits.",
       "The folds are precast, which was a cost decision that became an aesthetic one. The joints between units are left open and unfilled, and they do the work a shadow gap usually has to be invented for.",
     ],
@@ -256,6 +268,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "solstice-penthouse",
     title: "Solstice Penthouse",
     category: "Residential",
+    discipline: "Interior Design",
     place: "New York",
     year: "2025",
     status: "Built",
@@ -266,7 +279,7 @@ const RAW_PROJECTS: Project[] = [
       "A top-floor conversion where removing one floor plate did more than any amount of replanning could have.",
     body: [
       "The apartment came to us as eleven rooms with a corridor. The only thing worth keeping was the north window wall, so we took out a third of the upper floor plate and let the living space run the full height against that glass.",
-      "Structurally this was less dramatic than it sounds — the removed area was never load-bearing in the primary direction — but it required a transfer beam that had to arrive up the goods lift in three pieces and be welded in place over a weekend.",
+      "Structurally this was less dramatic than it sounds, the removed area was never load-bearing in the primary direction, but it required a transfer beam that had to arrive up the goods lift in three pieces and be welded in place over a weekend.",
       "The remaining upper level is a single long gallery. It holds the study and the guest room and, mostly, it holds the view.",
     ],
     beforeCaption:
@@ -284,6 +297,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "travertine-house-hotel",
     title: "Travertine House Hotel",
     category: "Hospitality",
+    discipline: "Architecture",
     place: "Lisbon",
     year: "2024",
     status: "Built",
@@ -315,6 +329,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "ironworks-studio",
     title: "Ironworks Studio",
     category: "Workplace",
+    discipline: "Interior Design",
     place: "Rochester",
     year: "2023",
     status: "Built",
@@ -322,7 +337,7 @@ const RAW_PROJECTS: Project[] = [
     client: "Ironworks Collective",
     blurb: "A former foundry reworked into forty studio desks and a shared making floor.",
     summary:
-      "An adaptive reuse where the cheapest possible intervention — cleaning and glazing — turned out to be the right one.",
+      "An adaptive reuse where the cheapest possible intervention, cleaning and glazing, turned out to be the right one.",
     body: [
       "The foundry had a steel frame in better condition than the survey suggested and a roof that was beyond saving. We replaced the roof, glazed the north slope, cleaned everything else, and stopped.",
       "The desks sit on a raised deck that floats clear of the original floor, because the original floor is oil-soaked and could not be made good within the budget. Leaving it visible under the deck was a decision the collective made, not us, and it is better than what we proposed.",
@@ -343,6 +358,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "marble-line-flagship",
     title: "Marble Line Flagship",
     category: "Retail",
+    discipline: "Interior Design",
     place: "Milan",
     year: "2022",
     status: "Built",
@@ -352,7 +368,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "One continuous stone element does every job the shopfitting would normally be asked to do.",
     body: [
-      "The brief wanted flexibility, which usually produces a room full of movable nothing. Instead we fixed one thing absolutely — a Carrara element that begins as the window sill, becomes the counter, turns and becomes the stair — and left everything else loose.",
+      "The brief wanted flexibility, which usually produces a room full of movable nothing. Instead we fixed one thing absolutely, a Carrara element that begins as the window sill, becomes the counter, turns and becomes the stair, and left everything else loose.",
       "It was cut from a single block so the veining runs continuously through all three functions. This is the sort of decision that is either the whole project or an expensive indulgence, and we spent a long time being unsure which.",
       "Lighting is entirely indirect, washing the vaulted ceiling of the existing building. No fitting is visible anywhere in the shop.",
     ],
@@ -371,6 +387,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "kiln-yard-housing",
     title: "Kiln Yard Housing",
     category: "Residential",
+    discipline: "Architecture",
     place: "Manchester",
     year: "2026",
     status: "On site",
@@ -381,7 +398,7 @@ const RAW_PROJECTS: Project[] = [
       "A perimeter block that keeps the pottery's kiln and builds the housing around it rather than over it.",
     body: [
       "The kiln is the only listed thing on the site and for two years it was treated as an obstruction. Our first submission made it the centre of the courtyard instead, which cost eleven units and won the planning committee unanimously.",
-      "Homes are dual aspect without exception — a standard we set at the outset and the only one we refused to trade during value engineering. It drove the block depth, which drove the yard dimension, which is why the courtyard is as generous as it is.",
+      "Homes are dual aspect without exception, a standard we set at the outset and the only one we refused to trade during value engineering. It drove the block depth, which drove the yard dimension, which is why the courtyard is as generous as it is.",
       "Brick is reclaimed from the demolished sheds where it could be, matched new where it could not. The two are not blended; the new work is laid in clearly defined panels.",
     ],
     beforeCaption:
@@ -401,6 +418,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "calder-street-school",
     title: "Calder Street School",
     category: "Education",
+    discipline: "Architecture",
     place: "Glasgow",
     year: "2025",
     status: "Built",
@@ -412,7 +430,7 @@ const RAW_PROJECTS: Project[] = [
     body: [
       "The site could not fit a hall and a corridor. So there is no corridor: the circulation widens and narrows along its length, and at its widest it is the hall, with the stage against the gable.",
       "Every classroom opens directly onto this street through a deep threshold that holds coats, storage and a window seat. Teachers told us the thresholds get used more than the classrooms on either side of them, which we choose to take as a compliment.",
-      "Structure is cross-laminated timber, left exposed throughout. The acoustic strategy depended on it, and so did the programme — the frame went up in nine weeks over a summer holiday.",
+      "Structure is cross-laminated timber, left exposed throughout. The acoustic strategy depended on it, and so did the programme, the frame went up in nine weeks over a summer holiday.",
     ],
     beforeCaption:
       "The cleared school site with the design team and site manager walking the setting-out in high-vis.",
@@ -431,6 +449,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "rookery-lane-library",
     title: "Rookery Lane Library",
     category: "Civic",
+    discipline: "Interior Design",
     place: "Norwich",
     year: "2025",
     status: "Built",
@@ -461,6 +480,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "saltworks-pavilion",
     title: "Saltworks Pavilion",
     category: "Cultural",
+    discipline: "Architecture",
     place: "Gdańsk",
     year: "2026",
     status: "On site",
@@ -470,7 +490,7 @@ const RAW_PROJECTS: Project[] = [
     summary:
       "A shelter, not a building: the archaeology is the exhibit and everything above it is demountable.",
     body: [
-      "The excavated floor cannot be built on, loaded, or permanently enclosed. Everything above it therefore lands on eight points outside the archaeological boundary and spans across — a glulam grid carrying a standing-seam roof and nothing else.",
+      "The excavated floor cannot be built on, loaded, or permanently enclosed. Everything above it therefore lands on eight points outside the archaeological boundary and spans across, a glulam grid carrying a standing-seam roof and nothing else.",
       "There are no walls. Weather protection is the roof overhang plus a perimeter of retractable fabric that is drawn only in winter, which the heritage body preferred to any glazed option.",
       "Every connection is bolted. If the assessment changes in twenty years, the pavilion comes apart in the order it went together.",
     ],
@@ -488,6 +508,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "wharfside-market-hall",
     title: "Wharfside Market Hall",
     category: "Retail",
+    discipline: "Architecture",
     place: "Bristol",
     year: "2024",
     status: "Built",
@@ -518,6 +539,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "ferrous-house",
     title: "Ferrous House",
     category: "Residential",
+    discipline: "Architecture",
     place: "Vermont",
     year: "2024",
     status: "Built",
@@ -544,6 +566,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "granary-quarter-offices",
     title: "Granary Quarter Offices",
     category: "Workplace",
+    discipline: "Architecture",
     place: "Dublin",
     year: "2026",
     status: "In design",
@@ -552,7 +575,7 @@ const RAW_PROJECTS: Project[] = [
     blurb: "Two retained grain silos threaded with a new floorplate that never touches them.",
     summary: "A workplace built between two listed silos, structurally independent of both.",
     body: [
-      "The silos cannot carry load and cannot be pierced. The new building therefore sits between them on its own frame, close enough to read as one thing and detailed so that it demonstrably is not — a hundred-millimetre gap runs the full height on both sides.",
+      "The silos cannot carry load and cannot be pierced. The new building therefore sits between them on its own frame, close enough to read as one thing and detailed so that it demonstrably is not, a hundred-millimetre gap runs the full height on both sides.",
       "That gap is the building's best room. It is glazed top and bottom and used as breakout space on every floor, and it is the only place you can put your hand on the original concrete.",
       "The design is currently at stage three. The silo interiors remain undecided and we have argued, so far unsuccessfully, for leaving them empty.",
     ],
@@ -573,6 +596,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "pinewood-chapel",
     title: "Pinewood Chapel",
     category: "Civic",
+    discipline: "Architecture",
     place: "Oregon",
     year: "2023",
     status: "Built",
@@ -583,7 +607,7 @@ const RAW_PROJECTS: Project[] = [
       "One room, one opening, and a great deal of argument about where the opening should go.",
     body: [
       "The trust wanted a space that belonged to no particular faith, which in practice meant removing every symbol until only orientation was left. The chapel therefore has one aperture, a full-height slot on the east wall, and the building is turned so that the slot catches sunrise at the equinox.",
-      "Walls are stacked timber — Douglas fir sections laid flat and pinned, no frame, no lining. The thickness is structural, thermal and acoustic at once, and it is the only material in the room.",
+      "Walls are stacked timber. Douglas fir sections laid flat and pinned, no frame, no lining. The thickness is structural, thermal and acoustic at once, and it is the only material in the room.",
       "It seats fifty and has been used for funerals, two weddings and, most weeks, for nothing at all, which the trust considers the point.",
     ],
     beforeCaption:
@@ -603,6 +627,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "quarry-edge-hotel",
     title: "Quarry Edge Hotel",
     category: "Hospitality",
+    discipline: "Architecture",
     place: "Cape Town",
     year: "2026",
     status: "On site",
@@ -633,6 +658,7 @@ const RAW_PROJECTS: Project[] = [
     slug: "alder-court-almshouses",
     title: "Alder Court Almshouses",
     category: "Residential",
+    discipline: "Architecture",
     place: "Suffolk",
     year: "2025",
     status: "Built",
