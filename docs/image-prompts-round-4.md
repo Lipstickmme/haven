@@ -227,10 +227,19 @@ Close raking view of an old maple factory floor, narrow boards, dark oil stains 
 
 ## Slot map
 
+Ticked frames are on the site. Two are still outstanding; the prompts for them
+are above, unchanged.
+
 | Project | before | after | part-1 | part-2 | part-3 |
 | --- | --- | --- | --- | --- | --- |
-| `harbourgate-show-residence` | yes | yes | Marble island | Oak floor | Bedroom joinery |
-| `basswood-family-house` | yes | yes | The kept staircase | Ash kitchen | Lime plaster hall |
-| `ortolan-dining-rooms` | yes | yes | Teller counter bar | Coffer panels | Banquette run |
-| `fernbank-clinic` | yes | yes | Arrival room | Consulting room | Second corridor |
-| `juniper-loft` | yes | yes | The oak volume | Maple floor | not used |
+| `harbourgate-show-residence` | done | done | Marble island, done | Oak floor, done | Bedroom joinery, done |
+| `basswood-family-house` | done | done | The kept staircase, done | Ash kitchen, done | Lime plaster hall, done |
+| `ortolan-dining-rooms` | done | done | **Teller counter bar, still needed** | Coffer panels, done | Banquette run, done |
+| `fernbank-clinic` | done | done | Arrival room, done | **Consulting room, still needed** | Second corridor, done |
+| `juniper-loft` | done | done | The oak volume, done | Maple floor, done | not used |
+
+A missing slot is skipped rather than left blank, so those two projects simply
+show two parts each until the frames land. Drop them in at
+`src/assets/projects/ortolan-dining-rooms/part-1.webp` and
+`src/assets/projects/fernbank-clinic/part-2.webp` and they appear in the right
+place with the right caption.
