@@ -108,7 +108,7 @@ function Contact() {
                   {office.phone ? (
                     <a
                       href={telHref(office.phone)}
-                      className="link-underline mt-3 inline-block text-base transition-colors hover:text-accent"
+                      className="link-underline -mx-1 mt-2 inline-block px-1 py-1.5 text-base transition-colors hover:text-accent"
                     >
                       {office.phone}
                     </a>

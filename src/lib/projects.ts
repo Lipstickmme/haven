@@ -106,7 +106,8 @@ const RAW_PROJECTS: Project[] = [
     ],
     beforeCaption:
       "The municipal car park during enabling works, with the site team setting out the first roof bay.",
-    afterCaption: "The completed roof stepping down the slope, seen from the fjord path at dusk.",
+    afterCaption:
+      "The completed room under the roof, looking out across the fjord to the mountains.",
     parts: [
       {
         title: "Board-marked soffit",
@@ -213,10 +214,13 @@ const RAW_PROJECTS: Project[] = [
     parts: [
       { title: "Folded steel stair", caption: "One plate, one fabricator, two streets away." },
       {
-        title: "Stack-bond brick",
+        title: "Brick face",
         caption: "The upper volume, weighted by bond rather than colour.",
       },
-      { title: "Carport court", caption: "Parking and entrance in the same south-facing room." },
+      {
+        title: "Stair and wall",
+        caption: "The folded plate reading against the brick it is bolted to.",
+      },
       { title: "North boundary", caption: "Where the mass had to go for the shadows to work." },
     ],
     legacy: arc5,
@@ -241,8 +245,8 @@ const RAW_PROJECTS: Project[] = [
       "The seaward glazing is fixed. Ventilation comes from louvred flanks on the landward side, which also take the winter storms.",
     ],
     beforeCaption:
-      "The cliff path before works, with the engineer and site foreman surveying the pile positions by hand.",
-    afterCaption: "The four terraces stepping seaward, photographed from the water at first light.",
+      "The terraces under construction on the cliff, with the engineer and site foreman checking the pile positions.",
+    afterCaption: "One of the four terraces complete, the sea beyond and the cut rock behind.",
     parts: [
       { title: "Mini-pile terraces", caption: "Pile caps doing double duty as floor plates." },
       { title: "Landward louvres", caption: "All ventilation and all the storm loading." },
@@ -271,7 +275,7 @@ const RAW_PROJECTS: Project[] = [
       "The folds are precast, which was a cost decision that became an aesthetic one. The joints between units are left open and unfilled, and they do the work a shadow gap usually has to be invented for.",
     ],
     beforeCaption:
-      "The former depot roof opened up, with the conservation team and contractor reviewing the existing structure.",
+      "The folded roof under construction on the wharf, with the conservation team and contractor reviewing the first bays.",
     afterCaption: "The completed folded roof over the print hall, seen from the adjacent canal.",
     parts: [
       { title: "Eleven folds", caption: "Each facet sized from the conservation daylight model." },
@@ -334,7 +338,7 @@ const RAW_PROJECTS: Project[] = [
       "Back of house is buried in the hill behind, which keeps service circulation entirely out of the guest experience and, incidentally, out of the summer heat.",
     ],
     beforeCaption:
-      "The terraced hillside during excavation, with the site architects checking the setting-out of the first loggia.",
+      "The terraces under construction on the hillside, with the site architects checking the setting out of the first loggia.",
     afterCaption: "The completed loggias fanning across the hillside in late afternoon light.",
     parts: [
       { title: "Fanned loggias", caption: "Four degrees per floor, so no sightline repeats." },
@@ -367,8 +371,8 @@ const RAW_PROJECTS: Project[] = [
       "The making floor stays as it was: full height, full width, no partitions, one crane rail.",
     ],
     beforeCaption:
-      "The disused foundry floor, with the project team surveying the retained steel frame under temporary lighting.",
-    afterCaption: "The finished making floor beneath the reglazed north roof slope.",
+      "The disused foundry under scaffolding, with the project team surveying the retained shed from the yard.",
+    afterCaption: "The finished shed from the same corner of the yard, north slope reglazed.",
     parts: [
       { title: "North glazing", caption: "The one slope worth opening up." },
       { title: "Crane rail", caption: "Kept, and still used." },
@@ -430,8 +434,9 @@ const RAW_PROJECTS: Project[] = [
       "Brick is reclaimed from the demolished sheds where it could be, matched new where it could not. The two are not blended; the new work is laid in clearly defined panels.",
     ],
     beforeCaption:
-      "The pottery yard before demolition, with architects and the conservation officer recording the kiln structure.",
-    afterCaption: "The completed perimeter block enclosing the retained kiln at dusk.",
+      "The perimeter block going up around the retained kiln, with the architects and the conservation officer checking the setting out.",
+    afterCaption:
+      "The completed perimeter block enclosing the retained kiln, from the yard entrance.",
     parts: [
       { title: "Retained kiln", caption: "Eleven units traded for the centre of the courtyard." },
       { title: "Yard threshold", caption: "Where the public route crosses into the block." },
@@ -463,7 +468,8 @@ const RAW_PROJECTS: Project[] = [
     ],
     beforeCaption:
       "The cleared school site with the design team and site manager walking the setting-out in high-vis.",
-    afterCaption: "The finished timber street at its widest point, set for assembly.",
+    afterCaption:
+      "The finished school from Calder Street, the timber upper floor turning the corner.",
     parts: [
       { title: "The street", caption: "Circulation that widens into the hall." },
       {
@@ -555,8 +561,8 @@ const RAW_PROJECTS: Project[] = [
       "Floor is a single power-floated slab with the old rail lines left in place and filled flush. They are the only trace of the shed's first use and they set the bay grid.",
     ],
     beforeCaption:
-      "The derelict train shed with the structural engineer and conservation architect inspecting truss connections from a scissor lift.",
-    afterCaption: "The finished hall with all forty bays trading under the reglazed roof.",
+      "The derelict train shed with the structural engineer and conservation architect inspecting the truss connections.",
+    afterCaption: "The finished hall under the reglazed roof, before the forty bays opened.",
     parts: [
       { title: "Freestanding bays", caption: "Steel tables; nothing new touches the trusses." },
       { title: "Reglazed roof", caption: "Four rounds of mock-up to satisfy both standards." },
@@ -586,7 +592,7 @@ const RAW_PROJECTS: Project[] = [
       "Inside, the entire north wall is storage and services, which lets the south wall be glass without the plan ever needing a corridor.",
     ],
     beforeCaption:
-      "The staked-out site in deep snow, with the architects and client reviewing the position of the plan.",
+      "The steel volume going up on its stone base in deep snow, with the architects and client on site.",
     afterCaption: "The completed steel volume on its stone base, birches bare, mid-winter.",
     parts: [
       { title: "Field-wall base", caption: "Stone taken from the site's own walls." },
@@ -678,7 +684,7 @@ const RAW_PROJECTS: Project[] = [
       "Water is the other constraint. The site has none, so the roof of every bench harvests to a tank cut into the face behind reception.",
     ],
     beforeCaption:
-      "The worked-out quarry face with the geotechnical engineer and architects assessing bench stability on foot.",
+      "The rooms going into the quarry face, with the geotechnical engineer and architects assessing bench stability.",
     afterCaption: "The completed rooms occupying the cut, arrival court on the quarry floor below.",
     parts: [
       { title: "Bench rooms", caption: "Three levels, all within the original cut profile." },
@@ -710,7 +716,7 @@ const RAW_PROJECTS: Project[] = [
       "Homes are built to be adapted: level thresholds, structural provision for hoists in every bedroom, and a bathroom that can be reconfigured without touching drainage.",
     ],
     beforeCaption:
-      "The 1970s deck-access block before demolition, with the architects and foundation trustees walking the existing decks.",
+      "The replacement almshouses under scaffolding, with the architects and foundation trustees walking the new cloister line.",
     afterCaption: "The completed cloister facing the green, late afternoon in autumn.",
     parts: [
       { title: "The cloister", caption: "Wide enough to sit in, sheltered enough for February." },

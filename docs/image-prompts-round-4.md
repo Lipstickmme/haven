@@ -243,3 +243,47 @@ show two parts each until the frames land. Drop them in at
 `src/assets/projects/ortolan-dining-rooms/part-1.webp` and
 `src/assets/projects/fernbank-clinic/part-2.webp` and they appear in the right
 place with the right caption.
+
+---
+
+## Appendix: frames still outstanding site-wide
+
+Three slots are empty across the whole site. A missing slot is skipped rather
+than left blank, so nothing is broken; each of these simply adds a third detail
+to a project that currently shows two. Drop the file at the path given and it
+appears under the caption named.
+
+Use the house style, the interiors addendum where the frame is interior, and the
+negative prompt from the top of this file.
+
+### `src/assets/projects/ortolan-dining-rooms/part-1.webp`
+
+Caption it lands under: **Teller counter bar**, "Cut once for staff access,
+otherwise left with its scratches."
+
+```
+Detail of a 1920s marble and brass bank teller counter converted to a restaurant bar, original brass grille above, one section cut away for staff access with a clean new edge, glassware and bottles behind, scratches and patina left on the marble, warm low light.
+```
+
+### `src/assets/projects/fernbank-clinic/part-2.webp`
+
+Caption it lands under: **Consulting room**, "Acoustic plaster tested to 45 dB,
+which is the number that mattered."
+
+```
+Small clinical consulting room finished in acoustic plaster with a fine matt texture, an oak-lined door, a simple desk and two chairs at ninety degrees rather than across from each other, an examination couch against the far wall, daylight from a single window, no branding.
+```
+
+### `src/assets/projects/kiln-yard-housing/part-3.webp`
+
+Caption it lands under: **The block going up**, "The perimeter rising around the
+kiln, which stayed standing throughout."
+
+The frame that was here duplicated the project's `before` photograph, the same
+view with the architects removed, so it was taken down. A replacement needs to
+be a different view of the same subject: get in close, or shoot from the
+opposite end of the yard.
+
+```
+Construction-stage photograph of a red brick perimeter housing block rising around a retained Victorian bottle kiln, seen from close under the scaffolding at one corner of the yard rather than from the middle, new brickwork and scaffold boards filling the left of the frame, the kiln beyond, muddy ground, overcast Manchester light, no people.
+```

@@ -50,8 +50,11 @@ In the Supabase SQL editor, run in order:
 | `supabase/migrations/0001_init.sql`          | everything: admins, enquiries, bookings, chat               |
 | `supabase/migrations/0002_email.sql`         | optional — only to receive mail through the inbound webhook |
 | `supabase/migrations/0003_site_settings.sql` | the contact details the Settings tab edits                  |
+| `supabase/migrations/0004_site_address.sql`  | superseded by 0005; run it anyway, in order                 |
+| `supabase/migrations/0005_offices.sql`       | the studio offices, one address and phone each              |
 
-Both are guarded and re-runnable: applying them twice is a no-op, not an error.
+All five are guarded and re-runnable: applying them twice is a no-op, not an
+error, and an edit made from the dashboard survives a re-run.
 
 Then check your work with `supabase/verify.sql`, which asserts every table,
 policy, trigger and publication membership exists and raises one exception
@@ -102,7 +105,8 @@ Settings → Git → Production Branch.
 ## Project photography
 
 Each project has a profile page at `/projects/<slug>` carrying a before/after
-comparison and four details of the building. Images live at:
+comparison and up to four details of the building, or of the interior where the
+project is an interiors commission. Images live at:
 
 ```
 src/assets/projects/<slug>/before.webp
@@ -112,13 +116,21 @@ src/assets/projects/<slug>/cover.webp   (optional; falls back to after.webp)
 ```
 
 `src/lib/projects.ts` globs that directory, so committing a file is all it takes
-— there is no manifest to update. The glob resolves at build time, so the image
-appears once the site rebuilds; a push does that automatically. A frame that has not been shot renders as a
-hatched panel labelled with the part name, so a half-photographed project still
-looks deliberate.
+and there is no manifest to update. The glob resolves at build time, so the
+image appears once the site rebuilds; a push does that automatically.
 
-`docs/image-prompts.md` carries a generation prompt and a caption for all 120
-frames, plus the house style and negative prompt.
+The slot number matters. `part-1.webp` is printed under the first caption in
+that project's `parts` array, `part-2.webp` under the second, and so on, so
+renaming a file moves a photograph under someone else's caption. A slot with no
+file is skipped rather than left blank, so a project with only `part-1` and
+`part-3` shows two details and no gap. A project with no cover, no `after` and
+no `legacy` draws a ruled "Photography in progress" panel on the index instead
+of a broken frame.
+
+The generation prompts live in `docs/`: `image-prompts.md` for the original set,
+then `image-prompts-round-2.md`, `-round-3.md` and `-round-4.md`. Each carries
+the house style, the negative prompt, and a per-frame prompt. The appendix at
+the end of round four lists the frames still outstanding across the whole site.
 
 ## Editable contact details
 

@@ -65,7 +65,7 @@ export function Footer() {
                 {office.phone ? (
                   <a
                     href={telHref(office.phone)}
-                    className="mt-3 inline-block text-sm text-ink-foreground/90 transition-colors hover:text-accent-ink"
+                    className="-mx-1 mt-2 inline-block px-1 py-1.5 text-sm text-ink-foreground/90 transition-colors hover:text-accent-ink"
                   >
                     {office.phone}
                   </a>
