@@ -204,6 +204,39 @@ export function decodeWebhookSecret(secret: string): Buffer | null {
   }
 }
 
+/**
+ * A readable verdict on the webhook secret's shape, for /api/health.
+ *
+ * `decodeWebhookSecret` alone is not enough to say a secret is usable: Node's
+ * base64 decoder silently drops characters it does not recognise, so a Resend
+ * API key pasted into this slot by mistake decodes to eighteen bytes and looks
+ * fine. The two values sit next to each other on the same settings screen and
+ * are easy to swap, and the symptom is every inbound delivery failing its
+ * signature check with nothing to say why. So check the shape as well.
+ */
+export function describeWebhookSecret(secret: string | undefined): string {
+  if (!secret) return "unset, which is only needed to receive mail";
+
+  if (secret.startsWith("re_")) {
+    return "SET BUT WRONG: this is a Resend API key, not a signing secret. The signing secret starts whsec_ and is on the inbound endpoint in Resend, not on the API keys page.";
+  }
+  if (secret.startsWith("sb_") || secret.startsWith("eyJ")) {
+    return "SET BUT WRONG: this looks like a Supabase key. Copy the whsec_ value from the inbound endpoint in Resend.";
+  }
+  if (!secret.startsWith("whsec_")) {
+    return "SET BUT SUSPECT: a Svix signing secret starts whsec_ and this does not. Copy it from the inbound endpoint in Resend.";
+  }
+
+  const key = decodeWebhookSecret(secret);
+  if (!key) {
+    return "SET BUT UNUSABLE: it does not base64-decode to a key. Copy the whsec_ value from Resend again.";
+  }
+  if (key.length < 16) {
+    return `SET BUT SUSPECT: it decodes to only ${key.length} bytes, where a signing secret is usually 24 or more. Check nothing was truncated on paste.`;
+  }
+  return `looks right: whsec_ prefix, decodes to ${key.length} bytes`;
+}
+
 function pickHeader(headers: Headers, ...names: string[]): string | null {
   for (const name of names) {
     const value = headers.get(name);

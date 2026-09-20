@@ -19,7 +19,7 @@ import {
   SUPABASE_ANON_KEY_NAMES,
   SUPABASE_URL,
   SUPABASE_URL_NAMES,
-  decodeWebhookSecret,
+  describeWebhookSecret,
   env,
   json,
 } from "./_shared.server";
@@ -102,11 +102,7 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
     return json({ error: "Use GET." }, 405);
   }
 
-  const webhookSecretDetail = RESEND_WEBHOOK_SECRET
-    ? decodeWebhookSecret(RESEND_WEBHOOK_SECRET)
-      ? "decodes to a usable key"
-      : "SET BUT UNUSABLE — it does not base64-decode to a key; copy the whsec_… value from Resend again"
-    : undefined;
+  const webhookSecretDetail = describeWebhookSecret(RESEND_WEBHOOK_SECRET);
 
   const checks: Check[] = [
     check("Supabase URL", SUPABASE_URL_NAMES, SUPABASE_URL, SUPABASE_URL),

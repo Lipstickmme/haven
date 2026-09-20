@@ -149,6 +149,47 @@ The route verifies the Svix HMAC-SHA256 signature over the raw body before
 parsing anything, ignores every event type other than `email.received`, and
 dedupes on the Resend email id because inbound webhooks retry.
 
+## Checking the mail settings
+
+`/api/health` on the deployment reports which variables the running server can
+read, which spelling supplied each one, and what `MAIL_FROM`, `MAIL_REPLY_TO`
+and `MAIL_NOTIFY_TO` currently resolve to. It never prints a value.
+
+For the parts a health check cannot see, whether the API key works, whether the
+domain is verified and whether mail actually arrives, run:
+
+```bash
+node scripts/check-resend.mjs                 # read-only checks
+node scripts/check-resend.mjs you@gmail.com   # and send one real email
+```
+
+It reads the same variable names the app reads, in the same order. The version
+worth trusting takes them from the deployment rather than your shell:
+
+```bash
+vercel env pull .env.local
+node --env-file=.env.local scripts/check-resend.mjs you@gmail.com
+```
+
+It resolves the addresses, catches the API key and the signing secret being
+swapped (they sit on the same settings screen and neither is obviously the
+other), asks Resend whether the domain is verified, warns when `MAIL_NOTIFY_TO`
+is on `MAIL_DOMAIN` and could loop, and then sends. Nothing is written and no
+secret is printed.
+
+The code underneath is covered offline, with no key and no network:
+
+```bash
+node --experimental-strip-types --no-warnings scripts/resend.test.mts
+```
+
+Forty assertions over the real `sendEmail` and `verifyResendWebhook`: the
+payload Resend receives, address resolution and its fallbacks, a rejected send
+surfacing Resend's own message, and the inbound signature check accepting a
+correctly signed delivery while rejecting a tampered body, a wrong secret, an
+hour-old replay and missing headers. Requests to `api.resend.com` are answered
+by a local stand-in.
+
 > **Do not point a forwarding address on `MAIL_DOMAIN` back at your own inbound
 > route.** Mail loops through the webhook until the sending quota is gone.
 
