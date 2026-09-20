@@ -57,6 +57,40 @@ export const MAIL_REPLY_TO = env(["MAIL_REPLY_TO"]) ?? `hello@${MAIL_DOMAIN}`;
  *  own inbound route, or mail loops through the webhook until quota runs out. */
 export const MAIL_NOTIFY_TO = env(["MAIL_NOTIFY_TO", "NOTIFY_TO", "STAFF_EMAIL"]) ?? MAIL_REPLY_TO;
 
+/**
+ * What is wrong with a configured mail address, or null when it is fine.
+ *
+ * `env()` trims the ends of a value but cannot see inside it, so an address
+ * pasted over several lines survives as one string with newlines in the middle.
+ * That is a broken header rather than a broken address, and neither Resend nor
+ * the recipient will tell you which variable did it.
+ */
+export function mailAddressIssue(value: string): string | null {
+  // A newline at either end is just whitespace that survived the paste.
+  const trimmed = value.replace(/^[\s\r\n]+|[\s\r\n]+$/g, "");
+
+  if (/[\r\n]/.test(trimmed)) {
+    const lines = trimmed
+      .split(/[\r\n]+/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+    const unique = [...new Set(lines)];
+    return unique.length === 1
+      ? `holds the same address ${lines.length} times on separate lines; it should be one line`
+      : `holds ${lines.length} addresses on separate lines; it should be one`;
+  }
+  // `Name <a@b.com>` and a bare `a@b.com` are both fine; anything else is not.
+  const bare = (/<([^>]*)>/.exec(trimmed)?.[1] ?? trimmed).trim();
+  if (!bare) return "is empty";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bare)) return `is not an email address: ${bare}`;
+  return null;
+}
+
+/** The address part of `Name <a@b.com>`, or the value itself. */
+export function bareAddress(value: string): string {
+  return (/<([^>]*)>/.exec(value)?.[1] ?? value).trim();
+}
+
 // ---------------------------------------------------------------------------
 // Supabase
 // ---------------------------------------------------------------------------
@@ -101,6 +135,23 @@ export async function sendEmail(options: SendEmailOptions): Promise<string | nul
   if (!RESEND_API_KEY) {
     console.warn("[mail] RESEND_API_KEY is unset — skipping send:", options.subject);
     return null;
+  }
+
+  // A newline in any of these is a malformed header, not just a bad address.
+  // Fail loudly and name the variable rather than handing Resend something it
+  // will reject with no clue where it came from.
+  for (const [label, value] of [
+    ["MAIL_FROM", options.from ?? MAIL_FROM],
+    ["MAIL_REPLY_TO", options.replyTo ?? ""],
+    ["the recipient", Array.isArray(options.to) ? options.to.join(",") : options.to],
+  ] as const) {
+    if (!value) continue;
+    const issue = mailAddressIssue(value);
+    if (issue) {
+      throw new Error(
+        `Refusing to send: ${label} ${issue}. Fix it in Vercel → Settings → Environment Variables, then redeploy. See /api/health.`,
+      );
+    }
   }
 
   const payload: Record<string, unknown> = {

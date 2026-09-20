@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { ChatMessage } from "@/lib/database.types";
 import { submitForm } from "@/lib/api/forms";
+import { describeError } from "@/lib/readable-error";
 import { isSupabaseConfigured } from "@/lib/public-config";
 import { supabase } from "@/lib/supabase";
 
@@ -43,12 +44,27 @@ function writeStoredSession(id: string | null): void {
 const ANON_DISABLED =
   "Live chat is switched off on this project: anonymous sign-ins are disabled. Turn them on in the Supabase dashboard under Authentication → Sign In / Providers → Anonymous sign-ins, then reload this page.";
 
-function readableError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error ?? "Something went wrong");
-  // Supabase's raw wording gives no clue where the setting lives.
-  if (/anonymous sign-ins are disabled/i.test(message)) return ANON_DISABLED;
-  if (/not configured/i.test(message)) return message;
-  return message;
+const UNREACHABLE =
+  "Live chat could not reach the database, so that message was not sent. This is usually the Supabase project being paused or asleep. /api/health shows which project this deployment points at.";
+
+/** The shared reader, plus the two failures worth naming their own fix for. */
+export function readableError(error: unknown): string {
+  const { message, kind, hint, code } = describeError(error);
+  if (kind === "anonymous-disabled") return ANON_DISABLED;
+  if (kind === "network") return UNREACHABLE;
+  if (kind === "unconfigured") return message;
+  const suffix = [hint, code ? `(${code})` : ""].filter(Boolean).join(" ");
+  return suffix ? `${message} ${suffix}` : message;
+}
+
+async function sessionIsLost(sessionId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("chat_sessions")
+    .select("id")
+    .eq("id", sessionId)
+    .maybeSingle();
+  if (error) return false;
+  return data === null;
 }
 
 /** Signs in anonymously, reusing an existing session rather than making a new
@@ -280,6 +296,11 @@ export function useVisitorChat(): VisitorChat {
       setSending(true);
       setError(null);
       try {
+        // The conversation is restored from localStorage, which outlives the
+        // access token. Without this the insert can go out unauthenticated and
+        // be refused by RLS for a reason that reads like a bug in the chat.
+        await ensureVisitorSession();
+
         // .select().single() so the message appears immediately instead of
         // waiting on the realtime round trip; mergeMessage drops the echo.
         const { data: message, error: insertError } = await supabase
@@ -292,6 +313,27 @@ export function useVisitorChat(): VisitorChat {
         mergeMessage(message as ChatMessage);
         return true;
       } catch (caught) {
+        // Order matters. A request that never completed says nothing about who
+        // owns the conversation, and asking the database about it is both
+        // pointless and liable to answer "gone" for the same reason the write
+        // failed. Only a refusal is worth investigating.
+        const { kind, code, message } = describeError(caught);
+        const refused =
+          kind !== "network" &&
+          (code === "42501" ||
+            code === "PGRST301" ||
+            /row-level security|permission denied|not authorized|jwt/i.test(message));
+
+        if (refused && (await sessionIsLost(sessionId))) {
+          writeStoredSession(null);
+          setSessionId(null);
+          setMessages([]);
+          setStatus("new");
+          setError(
+            "That conversation is no longer open on this browser. Your message was not sent; start a new one below and it will reach us.",
+          );
+          return false;
+        }
         setError(readableError(caught));
         return false;
       } finally {

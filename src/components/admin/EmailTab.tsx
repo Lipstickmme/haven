@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRealtimeRows } from "@/hooks/useRealtimeRows";
 import { sendEmailReply } from "@/lib/api/email";
 import { ITEM_STATUSES, type EmailMessage, type EmailThread } from "@/lib/database.types";
+import { readableError } from "@/lib/readable-error";
 
 import {
   EmptyState,
@@ -89,7 +90,7 @@ function Thread({ thread, enabled }: { thread: EmailThread; enabled: boolean }) 
         await reply({ data: { threadId: thread.id, body } });
         setDraft("");
       } catch (caught) {
-        setSendError(caught instanceof Error ? caught.message : String(caught));
+        setSendError(readableError(caught));
       } finally {
         setSending(false);
       }

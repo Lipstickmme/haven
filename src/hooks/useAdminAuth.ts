@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { isSupabaseConfigured } from "@/lib/public-config";
 import { supabase } from "@/lib/supabase";
+import { readableError } from "@/lib/readable-error";
 
 export type AdminAuth = {
   loading: boolean;
@@ -108,7 +109,7 @@ export function useAdminAuth(): AdminAuth {
         if (signInError) throw signInError;
         await applyUser(data.user);
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : String(caught));
+        setError(readableError(caught));
       } finally {
         setLoading(false);
       }

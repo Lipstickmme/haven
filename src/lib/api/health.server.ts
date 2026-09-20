@@ -19,7 +19,9 @@ import {
   SUPABASE_ANON_KEY_NAMES,
   SUPABASE_URL,
   SUPABASE_URL_NAMES,
+  bareAddress,
   describeWebhookSecret,
+  mailAddressIssue,
   env,
   json,
 } from "./_shared.server";
@@ -97,6 +99,74 @@ function check(label: string, names: string[], value: string | undefined, detail
   };
 }
 
+/**
+ * One row per resolved address, because an address that is subtly wrong, a
+ * multi-line paste, a typo, a domain that is not the verified one, fails in a
+ * way nothing else on this page would show.
+ */
+function mailAddressChecks(): Check[] {
+  const domain = env(["MAIL_DOMAIN"]);
+  const rows: { label: string; names: string[]; value: string }[] = [
+    { label: "Mail from", names: ["MAIL_FROM"], value: MAIL_FROM },
+    { label: "Mail reply-to", names: ["MAIL_REPLY_TO"], value: MAIL_REPLY_TO },
+    {
+      label: "Mail notify-to",
+      names: ["MAIL_NOTIFY_TO", "NOTIFY_TO", "STAFF_EMAIL"],
+      value: MAIL_NOTIFY_TO,
+    },
+  ];
+
+  return rows.map(({ label, names, value }) => {
+    const issue = mailAddressIssue(value);
+    const address = bareAddress(value);
+    const source = names.find((name) => {
+      const candidate = process.env[name];
+      return typeof candidate === "string" && candidate.trim() !== "";
+    });
+
+    const notes: string[] = [value];
+    if (issue) notes.push(`BROKEN: ${names[0]} ${issue}`);
+    if (!source) notes.push("defaulted, not set explicitly");
+    if (domain && !issue && !address.endsWith(`@${domain}`) && label === "Mail from") {
+      notes.push(
+        `not on MAIL_DOMAIN (${domain}), so Resend will reject it unless that domain is verified too`,
+      );
+    }
+    if (domain && !issue && address.endsWith(`@${domain}`) && label === "Mail notify-to") {
+      notes.push(
+        `on MAIL_DOMAIN, so check it does not forward into /api/inbound-email or notifications will loop`,
+      );
+    }
+
+    return {
+      name: label,
+      set: !issue,
+      ...(source ? { from: source } : { accepts: names }),
+      detail: notes.join(" — "),
+    };
+  });
+}
+
+/** One line on whether mail will actually go out. */
+function mailSummary(): string {
+  const problems: string[] = [];
+  if (!env(["MAIL_DOMAIN"])) {
+    problems.push("MAIL_DOMAIN is unset, so every send is rejected");
+  }
+  for (const [name, value] of [
+    ["MAIL_FROM", MAIL_FROM],
+    ["MAIL_REPLY_TO", MAIL_REPLY_TO],
+    ["MAIL_NOTIFY_TO", MAIL_NOTIFY_TO],
+  ] as const) {
+    const issue = mailAddressIssue(value);
+    if (issue) problems.push(`${name} ${issue}`);
+  }
+  if (!RESEND_API_KEY) problems.push("RESEND_API_KEY is unset, so nothing is sent at all");
+  if (problems.length === 0)
+    return "ok, as far as configuration goes; only a real send proves delivery";
+  return `BROKEN: ${problems.join("; ")}`;
+}
+
 export async function handleHealthCheck(request: Request): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return json({ error: "Use GET." }, 405);
@@ -126,8 +196,11 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
       "Mail domain",
       ["MAIL_DOMAIN"],
       env(["MAIL_DOMAIN"]),
-      `addresses resolve to ${MAIL_FROM} / reply-to ${MAIL_REPLY_TO} / notify ${MAIL_NOTIFY_TO}`,
+      env(["MAIL_DOMAIN"])
+        ? undefined
+        : `UNSET, so mail is sent from ${MAIL_FROM} and Resend will reject every send. Set MAIL_DOMAIN to the domain you verified in Resend.`,
     ),
+    ...mailAddressChecks(),
   ];
 
   // Chat and the dashboard need Supabase; mail is optional.
@@ -142,6 +215,9 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
   return json(
     {
       status: missing.length === 0 ? "ok" : "misconfigured",
+      // `status` is about whether the site works; mail is separate, because a
+      // studio can be serving pages perfectly while every notification bounces.
+      mail: mailSummary(),
       chat,
       supabaseProject: SUPABASE_URL ?? null,
       mailDomain: MAIL_DOMAIN,

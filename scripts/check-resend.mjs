@@ -33,6 +33,24 @@ const MAIL_FROM = pick("MAIL_FROM")?.value ?? `Meastro Architecture <no-reply@${
 const MAIL_REPLY_TO = pick("MAIL_REPLY_TO")?.value ?? `hello@${MAIL_DOMAIN}`;
 const MAIL_NOTIFY_TO = pick("MAIL_NOTIFY_TO", "NOTIFY_TO", "STAFF_EMAIL")?.value ?? MAIL_REPLY_TO;
 
+/** A newline inside an address is a broken header, not just a bad address. */
+const addressIssue = (value) => {
+  const trimmed = value.replace(/^[\s\r\n]+|[\s\r\n]+$/g, "");
+  if (/[\r\n]/.test(trimmed)) {
+    const lines = trimmed
+      .split(/[\r\n]+/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    return new Set(lines).size === 1
+      ? `holds the same address ${lines.length} times on separate lines; it should be one line`
+      : `holds ${lines.length} addresses on separate lines; it should be one`;
+  }
+  const bare = (/<([^>]*)>/.exec(trimmed)?.[1] ?? trimmed).trim();
+  if (!bare) return "is empty";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bare)) return `is not an email address: ${bare}`;
+  return null;
+};
+
 const out = [];
 let failed = 0;
 const say = (s = "") => out.push(s);
@@ -77,6 +95,15 @@ else {
   if (bytes < 16)
     bad(`RESEND_WEBHOOK_SECRET decodes to only ${bytes} bytes, so it looks truncated`);
   else good(`RESEND_WEBHOOK_SECRET looks right (whsec_, ${bytes} bytes)`);
+}
+
+for (const [name, value] of [
+  ["MAIL_FROM", MAIL_FROM],
+  ["MAIL_REPLY_TO", MAIL_REPLY_TO],
+  ["MAIL_NOTIFY_TO", MAIL_NOTIFY_TO],
+]) {
+  const issue = addressIssue(value);
+  if (issue) bad(`${name} ${issue}`);
 }
 
 if (MAIL_NOTIFY_TO.endsWith(`@${MAIL_DOMAIN}`)) {

@@ -2,6 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useState, type FormEvent } from "react";
 
 import { submitForm, type SubmitFormInput } from "@/lib/api/forms";
+import { readableError } from "@/lib/readable-error";
 
 export type FormValues = Record<string, string>;
 
@@ -49,11 +50,7 @@ export function useFormSubmit<T extends FormValues>(
           await send({ data: build(values) });
           setSuccess(true);
         } catch (caught) {
-          setError(
-            caught instanceof Error
-              ? caught.message
-              : "Something went wrong sending that. Please try again.",
-          );
+          setError(readableError(caught));
         } finally {
           setSubmitting(false);
         }
