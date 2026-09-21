@@ -76,6 +76,65 @@ async function inspectChat(): Promise<ChatReport> {
   }
 }
 
+type EmailReport = {
+  reachable: boolean;
+  detail: string;
+  threads?: number;
+  messages?: number;
+  latestMessageAt?: string | null;
+};
+
+/**
+ * Whether anything has ever arrived through the inbound webhook.
+ *
+ * Mail that never shows up in the dashboard has four possible stopping points
+ * and they are indistinguishable from the dashboard itself: the domain's MX
+ * records may not point at Resend, so Resend never saw it; there may be no
+ * inbound route; the signature check may be rejecting every delivery; or the
+ * tables may not exist. A count of zero with the tables present narrows it to
+ * the first three, and Resend's own webhook log separates those.
+ */
+async function inspectEmail(): Promise<EmailReport> {
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    return { reachable: false, detail: "Supabase is not configured on this server." };
+  }
+  try {
+    const { adminClient } = await import("./_shared.server");
+    const db = adminClient();
+
+    const threads = await db.from("email_threads").select("id", { count: "exact", head: true });
+    if (threads.error) {
+      return {
+        reachable: false,
+        detail:
+          "The email tables are not on this project, so inbound mail has nowhere to land. Apply supabase/migrations/0002_email.sql. This is optional; only receiving mail needs it.",
+      };
+    }
+
+    const messages = await db.from("email_messages").select("id", { count: "exact", head: true });
+    const latest = await db
+      .from("email_messages")
+      .select("created_at")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const count = messages.count ?? 0;
+    return {
+      reachable: true,
+      threads: threads.count ?? 0,
+      messages: count,
+      latestMessageAt: (latest.data?.["created_at"] as string | undefined) ?? null,
+      detail:
+        count > 0
+          ? "Inbound mail has reached the database. If the dashboard looks empty, reload it."
+          : "The tables are there and empty: no delivery has ever been filed. Check Resend's webhook log for this endpoint. No attempt listed at all means mail is not reaching Resend, so the domain's MX records are not pointing at it or there is no inbound route. A 401 means the signing secret here does not match the one on that endpoint. A 500 means the write failed, and the reason is in the response body.",
+    };
+  } catch (error) {
+    return { reachable: false, detail: `Could not reach the database: ${String(error)}` };
+  }
+}
+
 type SchemaReport = {
   /** False only when the check ran and found something missing. */
   ok: boolean;
@@ -285,7 +344,7 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
   // Whether visitor messages are actually landing in the database. This is the
   // one thing that separates "chat is broken" into a write problem or a read
   // problem, and it cannot be answered from the browser.
-  const [chat, schema] = await Promise.all([inspectChat(), inspectSchema()]);
+  const [chat, schema, email] = await Promise.all([inspectChat(), inspectSchema(), inspectEmail()]);
 
   return json(
     {
@@ -295,6 +354,7 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
       mail: mailSummary(),
       schema,
       chat,
+      email,
       supabaseProject: SUPABASE_URL ?? null,
       mailDomain: MAIL_DOMAIN,
       missing: missing.map((entry) => ({ name: entry.name, setAnyOf: entry.accepts ?? [] })),

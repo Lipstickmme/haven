@@ -189,6 +189,8 @@ The code underneath is covered offline, with no key and no network:
 
 ```bash
 node --experimental-strip-types --no-warnings scripts/resend.test.mts
+node --experimental-strip-types --no-warnings scripts/inbound-email.test.mts
+node --experimental-strip-types --no-warnings scripts/chat-errors.test.mts
 ```
 
 Forty assertions over the real `sendEmail` and `verifyResendWebhook`: the
@@ -200,6 +202,34 @@ by a local stand-in.
 
 > **Do not point a forwarding address on `MAIL_DOMAIN` back at your own inbound
 > route.** Mail loops through the webhook until the sending quota is gone.
+
+### When mail does not reach the dashboard
+
+Mail that never appears has four possible stopping points, and the dashboard
+cannot tell them apart. Work down the list; `/api/health` answers the last two.
+
+1. **Resend never received it.** Receiving mail needs the domain's **MX records**
+   pointing at Resend, which is separate from the TXT records that let you
+   *send*. A domain verified for sending still delivers its incoming mail
+   wherever its MX says, and that delivery succeeds, which is why nothing
+   bounces. If Resend's webhook log shows no attempt at all for the time you
+   sent, this is it.
+2. **No inbound route, or the wrong URL.** The route must point at
+   `https://<your-deployment>/api/inbound-email`.
+3. **The signature is being rejected.** Resend's log shows `401`, and the
+   response body names the cause: most often `RESEND_WEBHOOK_SECRET` holding an
+   API key rather than the `whsec_` signing secret from the inbound endpoint.
+4. **The write failed.** Resend's log shows `500` and the body names the
+   relation, usually because `0002_email.sql` has not been applied.
+
+`/api/health` reports the last two under `email`: it says whether the tables
+exist, how many messages have ever been filed, and when the last one arrived. A
+count of zero with the tables present means nothing has ever reached the
+endpoint, which narrows it to 1, 2 or 3.
+
+The handler itself is covered by `scripts/inbound-email.test.mts`, which drives
+a correctly signed delivery through it with a stand-in for Supabase, so a
+delivery that is arriving and signed correctly will be filed.
 
 ## Local development
 
