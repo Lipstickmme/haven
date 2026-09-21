@@ -76,6 +76,81 @@ async function inspectChat(): Promise<ChatReport> {
   }
 }
 
+type SchemaReport = {
+  /** False only when the check ran and found something missing. */
+  ok: boolean;
+  /** Whether 0006 has been applied at all. A project without it is not broken. */
+  installed: boolean;
+  detail: string;
+  problems: string[];
+};
+
+/**
+ * What the database says about its own shape.
+ *
+ * A missing policy is invisible from the outside: the tables are there, the
+ * server reads them happily with the service role, and the only symptom is a
+ * visitor being refused with "new row violates row-level security policy",
+ * which reads like a bug in the widget. schema_report() knows what should be
+ * there, so ask it rather than guessing.
+ */
+async function inspectSchema(): Promise<SchemaReport> {
+  try {
+    const shared = await import("./_shared.server");
+    if (!shared.SUPABASE_URL || !shared.SERVICE_ROLE_KEY) {
+      return {
+        ok: true,
+        installed: false,
+        detail: "Supabase is not configured, so the schema was not checked.",
+        problems: [],
+      };
+    }
+
+    const { data, error } = await shared.adminClient().rpc("schema_report");
+    if (error) {
+      // A project that has not applied 0006 is missing a diagnostic, not a
+      // feature. Say so without calling the whole deployment misconfigured.
+      return /schema_report|PGRST202|function.*does not exist/i.test(error.message)
+        ? {
+            ok: true,
+            installed: false,
+            problems: [],
+            detail:
+              "The schema check is not installed on this project. Apply supabase/migrations/0006_schema_report.sql to have this page name anything that is missing.",
+          }
+        : {
+            ok: true,
+            installed: false,
+            problems: [],
+            detail: `Could not run the schema check: ${error.message}`,
+          };
+    }
+
+    const problems = Array.isArray(data) ? data.map(String) : [];
+    return problems.length === 0
+      ? {
+          ok: true,
+          installed: true,
+          problems,
+          detail: "every table, column, policy, trigger and publication membership is present",
+        }
+      : {
+          ok: false,
+          installed: true,
+          problems,
+          detail:
+            "The schema is incomplete, which is what a chat that accepts no messages usually turns out to be. Re-run the migration that creates each item below; they are all guarded, so re-running is safe.",
+        };
+  } catch (error) {
+    return {
+      ok: true,
+      installed: false,
+      problems: [],
+      detail: `Could not reach the database, so the schema was not checked: ${String(error)}`,
+    };
+  }
+}
+
 type Check = {
   name: string;
   set: boolean;
@@ -210,14 +285,15 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
   // Whether visitor messages are actually landing in the database. This is the
   // one thing that separates "chat is broken" into a write problem or a read
   // problem, and it cannot be answered from the browser.
-  const chat = await inspectChat();
+  const [chat, schema] = await Promise.all([inspectChat(), inspectSchema()]);
 
   return json(
     {
-      status: missing.length === 0 ? "ok" : "misconfigured",
+      status: missing.length === 0 && schema.ok ? "ok" : "misconfigured",
       // `status` is about whether the site works; mail is separate, because a
       // studio can be serving pages perfectly while every notification bounces.
       mail: mailSummary(),
+      schema,
       chat,
       supabaseProject: SUPABASE_URL ?? null,
       mailDomain: MAIL_DOMAIN,
@@ -225,6 +301,6 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
       checks,
       hint: "Set these in Vercel → Settings → Environment Variables (Production and Preview), then redeploy. Anonymous sign-ins must be enabled on the Supabase project printed above, under Authentication → Sign In / Providers.",
     },
-    missing.length === 0 ? 200 : 503,
+    missing.length === 0 && schema.ok ? 200 : 503,
   );
 }

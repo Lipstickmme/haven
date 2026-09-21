@@ -47,12 +47,27 @@ const ANON_DISABLED =
 const UNREACHABLE =
   "Live chat could not reach the database, so that message was not sent. This is usually the Supabase project being paused or asleep. /api/health shows which project this deployment points at.";
 
-/** The shared reader, plus the two failures worth naming their own fix for. */
+const REFUSED =
+  "We could not save that message. Live chat is not set up correctly on this site, which is our problem rather than yours. Please email us or use the contact form and we will pick it up there.";
+
+/** The shared reader, plus the failures worth naming their own fix for. */
 export function readableError(error: unknown): string {
   const { message, kind, hint, code } = describeError(error);
   if (kind === "anonymous-disabled") return ANON_DISABLED;
   if (kind === "network") return UNREACHABLE;
   if (kind === "unconfigured") return message;
+
+  // A visitor cannot act on "new row violates row-level security policy", and
+  // should not have to read it. Whoever runs the site can: put the real reason
+  // where they will find it and point at the page that names the fix.
+  if (code === "42501" || /row-level security|permission denied/i.test(message)) {
+    console.error(
+      `[chat] the database refused the write: ${message}${hint ? ` — ${hint}` : ""}${code ? ` (${code})` : ""}\n` +
+        "[chat] /api/health reports which policy is missing; it is usually chat_messages_visitor_insert, restored by re-running supabase/migrations/0001_init.sql.",
+    );
+    return REFUSED;
+  }
+
   const suffix = [hint, code ? `(${code})` : ""].filter(Boolean).join(" ");
   return suffix ? `${message} ${suffix}` : message;
 }

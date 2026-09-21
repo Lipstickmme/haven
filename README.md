@@ -52,13 +52,21 @@ In the Supabase SQL editor, run in order:
 | `supabase/migrations/0003_site_settings.sql` | the contact details the Settings tab edits                  |
 | `supabase/migrations/0004_site_address.sql`  | superseded by 0005; run it anyway, in order                 |
 | `supabase/migrations/0005_offices.sql`       | the studio offices, one address and phone each              |
+| `supabase/migrations/0006_schema_report.sql` | lets `/api/health` and `verify.sql` name anything missing   |
 
-All five are guarded and re-runnable: applying them twice is a no-op, not an
+All six are guarded and re-runnable: applying them twice is a no-op, not an
 error, and an edit made from the dashboard survives a re-run.
 
 Then check your work with `supabase/verify.sql`, which asserts every table,
-policy, trigger and publication membership exists and raises one exception
-listing anything missing.
+column, policy, trigger and publication membership exists and raises one
+exception listing anything missing.
+
+It is worth re-running whenever something stops working for no obvious reason.
+A missing policy is invisible from the outside: the tables are all there, the
+server reads them happily with the service role, and the only symptom is a
+visitor being refused with `new row violates row-level security policy`, which
+reads like a bug in the widget. `/api/health` now reports the same thing under
+`schema`, so the deployment answers the question without a SQL editor.
 
 ### 3. Put yourself on the admin list
 
