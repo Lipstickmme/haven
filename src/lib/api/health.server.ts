@@ -127,8 +127,11 @@ async function inspectEmail(): Promise<EmailReport> {
       latestMessageAt: (latest.data?.["created_at"] as string | undefined) ?? null,
       detail:
         count > 0
-          ? "Inbound mail has reached the database. If the dashboard looks empty, reload it."
-          : "The tables are there and empty: no delivery has ever been filed. Check Resend's webhook log for this endpoint. No attempt listed at all means mail is not reaching Resend, so the domain's MX records are not pointing at it or there is no inbound route. A 401 means the signing secret here does not match the one on that endpoint. A 500 means the write failed, and the reason is in the response body.",
+          ? // This count is read with the service role, which bypasses RLS, so
+            // it says the rows exist and nothing about whether staff can see
+            // them. Those two look identical from an empty dashboard.
+            "Inbound mail has reached the database. If the dashboard is still empty, the rows are there but unreadable by staff, which is the email_threads_admin_select or email_messages_admin_select policy: the `schema` section above names it, and 0002_email.sql restores it."
+          : "The tables are there and empty: no delivery has ever been filed. Receiving mail and forwarding it to a webhook are two separate settings in Resend, and the first can work while the second is missing, so check that a webhook subscribed to email.received points at this deployment's /api/inbound-email. scripts/test-inbound.mjs posts a signed delivery straight to it and settles this in one call.",
     };
   } catch (error) {
     return { reachable: false, detail: `Could not reach the database: ${String(error)}` };

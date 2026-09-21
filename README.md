@@ -222,10 +222,33 @@ cannot tell them apart. Work down the list; `/api/health` answers the last two.
 4. **The write failed.** Resend's log shows `500` and the body names the
    relation, usually because `0002_email.sql` has not been applied.
 
-`/api/health` reports the last two under `email`: it says whether the tables
-exist, how many messages have ever been filed, and when the last one arrived. A
-count of zero with the tables present means nothing has ever reached the
-endpoint, which narrows it to 1, 2 or 3.
+There is a fifth, which looks exactly like the others from the dashboard: the
+message **was** filed, but staff cannot read it. The webhook writes with the
+service role, which bypasses RLS, so a missing `email_threads_admin_select` or
+`email_messages_admin_select` policy leaves rows in the table that the dashboard
+cannot see. `/api/health` counts with the service role too, so a non-zero count
+beside an empty dashboard is this and nothing else; the `schema` section names
+the policy, and re-running `0002_email.sql` restores it.
+
+`/api/health` reports the rest under `email`: whether the tables exist, how many
+messages have ever been filed, and when the last one arrived. A count of zero
+with the tables present means nothing has ever reached the endpoint, which
+narrows it to 1, 2 or 3.
+
+To settle it in one call, post a correctly signed delivery straight at the
+endpoint, bypassing Resend:
+
+```bash
+vercel env pull .env.local
+node --env-file=.env.local scripts/test-inbound.mjs https://your-deployment.example.com
+```
+
+A `200` that then shows up in **/admin → Email** means the endpoint, the secret,
+the database and the dashboard are all fine, and the only thing left is that
+Resend is not calling the URL. Receiving mail and forwarding it to a webhook are
+two separate settings there, and the first can work while the second is missing.
+A `200` that does *not* show up is the admin SELECT policy above. A `401` or
+`500` names itself in the response.
 
 The handler itself is covered by `scripts/inbound-email.test.mts`, which drives
 a correctly signed delivery through it with a stand-in for Supabase, so a
