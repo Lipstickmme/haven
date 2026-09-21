@@ -10,6 +10,7 @@ import {
   json,
   normaliseSubject,
   parseAddress,
+  pickBody,
   text,
   verifyResendWebhook,
 } from "./_shared.server";
@@ -124,6 +125,17 @@ export async function handleInboundEmail(request: Request): Promise<Response> {
   const messageId =
     headerValue(headers, "message-id") ?? (providerId ? `resend:${providerId}` : null);
   const inReplyTo = headerValue(headers, "in-reply-to");
+  const body = pickBody(mail as Record<string, unknown>);
+  if (!body.text && !body.html) {
+    // Filing a message with no body is worse than useless: the dashboard shows
+    // an empty conversation and there is nothing to say where the words went.
+    // The key names are the provider's to choose, so print the ones that
+    // arrived rather than guessing again.
+    console.warn(
+      `[inbound-email] no body on this delivery. The keys present were: ${Object.keys(mail).join(", ") || "(none)"}. If one of those holds the message, pickBody() in _shared.server.ts needs it.`,
+    );
+  }
+
   const rawSubject = text(mail.subject, 500);
   const subject = normaliseSubject(rawSubject);
   const attachments = mail.attachments;
@@ -190,8 +202,8 @@ export async function handleInboundEmail(request: Request): Promise<Response> {
       from_name: from.name,
       to_email: firstRecipient(mail.to) || null,
       subject: rawSubject || subject,
-      body_text: text(mail.text, 100000) || null,
-      body_html: typeof mail.html === "string" ? mail.html.slice(0, 200000) : null,
+      body_text: text(body.text, 100000) || null,
+      body_html: body.html ? body.html.slice(0, 200000) : null,
       message_id: messageId,
       in_reply_to: inReplyTo,
       has_attachments: Array.isArray(attachments) && attachments.length > 0,

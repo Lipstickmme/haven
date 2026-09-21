@@ -276,6 +276,16 @@ The handler itself is covered by `scripts/inbound-email.test.mts`, which drives
 a correctly signed delivery through it with a stand-in for Supabase, so a
 delivery that is arriving and signed correctly will be filed.
 
+### A message that arrives with no body
+
+Plenty of mail is HTML-only, so a message can file correctly and still read as
+empty. `pickBody()` looks for the text under any of the names a provider might
+use, nested or not, and falls back to a plain-text rendering of the HTML; the
+dashboard does the same for rows already stored. If a delivery genuinely has no
+body anywhere, the route logs the keys that *were* present, which is the only
+way to find out where a provider actually put it. `scripts/email-body.test.mts`
+covers both halves.
+
 ## Local development
 
 ```bash
