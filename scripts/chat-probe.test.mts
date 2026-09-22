@@ -16,9 +16,11 @@ const vite: ViteDevServer = await createServer({
 process.env["SUPABASE_URL"] = "https://stub.supabase.co";
 process.env["SUPABASE_ANON_KEY"] = "anon";
 process.env["SUPABASE_SERVICE_ROLE_KEY"] = "service";
-const { explainRefusal } = (await vite.ssrLoadModule("/src/lib/api/health.server.ts")) as {
+const mod = (await vite.ssrLoadModule("/src/lib/api/health.server.ts")) as {
   explainRefusal: (e: { message: string; code?: string; hint?: string }, t: string, a: string) => string;
+  describeChatRecency: (count: number, latestAt: string | null) => string;
 };
+const { explainRefusal, describeChatRecency } = mod;
 
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean, got = "") => {
@@ -68,6 +70,30 @@ console.log("\nThe three faults behind one sentence\n");
 {
   const out = explainRefusal({ message: "" }, "chat_messages", "insert");
   ok("an empty message does not throw", typeof out === "string");
+}
+
+console.log("\nA message count is history, not proof that sending works now\n");
+{
+  const hoursAgo = (n: number) => new Date(Date.now() - n * 3600_000).toISOString();
+
+  const stale = describeChatRecency(15, hoursAgo(30));
+  ok("a day-old last message is not reported as working", !/is working|are reaching/.test(stale), stale);
+  ok("it says how old", /1 day\(s\) old/.test(stale), stale);
+  ok("it points at the probe", /probe=chat/.test(stale), stale);
+  console.log(`        -> ${stale}\n`);
+
+  const fresh = describeChatRecency(15, hoursAgo(2));
+  ok("a recent message reports the write path working", /working that recently/.test(fresh), fresh);
+  ok("it does not cry wolf", !/refused/.test(fresh), fresh);
+  console.log(`        -> ${fresh}\n`);
+
+  const none = describeChatRecency(0, null);
+  ok("no messages at all points at the probe", /probe=chat/.test(none), none);
+
+  ok("a missing timestamp does not throw", typeof describeChatRecency(3, null) === "string");
+  ok("an unparseable timestamp does not throw", typeof describeChatRecency(3, "not a date") === "string");
+  ok("within the hour reads naturally", /within the hour/.test(describeChatRecency(1, hoursAgo(0))),
+     describeChatRecency(1, hoursAgo(0)));
 }
 
 await vite.close();

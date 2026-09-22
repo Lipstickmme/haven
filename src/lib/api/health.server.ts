@@ -35,6 +35,28 @@ type ChatReport = {
   realtime?: string;
 };
 
+const HOUR_MS = 60 * 60 * 1000;
+
+/** What the message count and its age together actually say. */
+export function describeChatRecency(count: number, latestAt: string | null): string {
+  if (count === 0) {
+    return "No chat messages have ever been stored. If a visitor has sent one, the write is being refused: /api/health?probe=chat performs that exact write and names the reason.";
+  }
+
+  const age = latestAt ? Date.now() - new Date(latestAt).getTime() : Number.NaN;
+  if (!Number.isFinite(age)) {
+    return `${count} messages are stored. /api/health?probe=chat performs the visitor's write and reports whether it still succeeds.`;
+  }
+
+  const hours = Math.floor(age / HOUR_MS);
+  if (hours < 24) {
+    return `${count} messages stored, the most recent ${hours < 1 ? "within the hour" : `${hours} hour(s) ago`}. The write path was working that recently.`;
+  }
+
+  const days = Math.floor(hours / 24);
+  return `${count} messages stored, but the most recent is ${days} day(s) old. A total above zero is history, not proof that sending works now; if visitors are being refused, /api/health?probe=chat performs that exact write and names the reason.`;
+}
+
 async function inspectChat(): Promise<ChatReport> {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     return { reachable: false, detail: "Supabase is not configured on this server." };
@@ -59,15 +81,18 @@ async function inspectChat(): Promise<ChatReport> {
       .limit(1)
       .maybeSingle();
 
+    const latestAt = (latest.data?.["created_at"] as string | undefined) ?? null;
+
     return {
       reachable: true,
-      detail:
-        (messages.count ?? 0) > 0
-          ? "Visitor messages are reaching the database. If the dashboard is not showing them, the problem is on the read side — the widget and dashboard now poll as well as subscribe, so reload both."
-          : "No chat messages stored yet. If a visitor has sent one, the write is failing — check that anonymous sign-ins are enabled on this project.",
+      // A count is a record of the past, not a statement about now. Reporting
+      // "messages are reaching the database" off a total above zero read as
+      // reassurance while every message sent that day was being refused, so
+      // say when the last one actually arrived and let the reader judge.
+      detail: describeChatRecency(messages.count ?? 0, latestAt),
       sessions: sessions.count ?? 0,
       messages: messages.count ?? 0,
-      latestMessageAt: (latest.data?.["created_at"] as string | undefined) ?? null,
+      latestMessageAt: latestAt,
       realtime:
         "Realtime is a bonus, not a requirement: both surfaces poll as a fallback, so messages arrive within a few seconds either way.",
     };
