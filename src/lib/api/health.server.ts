@@ -304,6 +304,138 @@ function mailSummary(): string {
   return `BROKEN: ${problems.join("; ")}`;
 }
 
+type ProbeStep = { step: string; ok: boolean; detail: string };
+
+/**
+ * Perform the exact write a visitor's chat makes, under the browser's own key.
+ *
+ * Every other check here runs with the service role, which bypasses RLS and so
+ * cannot see any of the reasons a visitor's message gets refused. Three
+ * separate causes produce the same sentence in the widget, and telling them
+ * apart has meant reading a browser console: a missing policy, a missing grant,
+ * and anonymous sign-ins being switched off. This signs in the way the widget
+ * does and writes the way the widget does, so the answer comes back named.
+ *
+ * Not run unless asked for, because it writes two rows. They are deleted again
+ * with the service role, and the conversation is labelled so an interrupted run
+ * is recognisable in the dashboard.
+ */
+async function probeChatWrite(): Promise<{ ok: boolean; detail: string; steps: ProbeStep[] }> {
+  const steps: ProbeStep[] = [];
+  const add = (step: string, ok: boolean, detail: string) => {
+    steps.push({ step, ok, detail });
+    return ok;
+  };
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return {
+      ok: false,
+      detail: "Supabase is not configured, so the visitor path could not be tried.",
+      steps,
+    };
+  }
+
+  const { createClient } = await import("@supabase/supabase-js");
+  const visitor = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  let sessionId: string | null = null;
+  try {
+    const signIn = await visitor.auth.signInAnonymously();
+    if (signIn.error || !signIn.data.user) {
+      add(
+        "sign in anonymously",
+        false,
+        `${signIn.error?.message ?? "no user returned"}. Anonymous sign-ins are switched off for this project: turn them on under Authentication → Sign In / Providers.`,
+      );
+      return { ok: false, detail: "A visitor cannot sign in, so nothing else was tried.", steps };
+    }
+    add("sign in anonymously", true, `signed in as ${signIn.data.user.id}`);
+
+    const session = await visitor
+      .from("chat_sessions")
+      .insert({ visitor_name: "Health check probe" })
+      .select("id")
+      .single();
+
+    if (session.error) {
+      add("open a conversation", false, explainRefusal(session.error, "chat_sessions", "insert"));
+      return { ok: false, detail: "A visitor cannot open a conversation.", steps };
+    }
+    sessionId = String(session.data["id"]);
+    add("open a conversation", true, "the row was accepted");
+
+    const message = await visitor
+      .from("chat_messages")
+      .insert({ session_id: sessionId, sender: "visitor", body: "Health check probe." })
+      .select("id")
+      .single();
+
+    if (message.error) {
+      add("send a message", false, explainRefusal(message.error, "chat_messages", "insert"));
+      return {
+        ok: false,
+        detail: "A visitor can open a conversation but cannot send a message.",
+        steps,
+      };
+    }
+    add("send a message", true, "the message was accepted");
+
+    const readBack = await visitor.from("chat_messages").select("id").eq("session_id", sessionId);
+    add(
+      "read the conversation back",
+      !readBack.error && (readBack.data?.length ?? 0) > 0,
+      readBack.error
+        ? explainRefusal(readBack.error, "chat_messages", "select")
+        : `${readBack.data?.length ?? 0} message(s) visible to the visitor`,
+    );
+
+    return {
+      ok: steps.every((entry) => entry.ok),
+      detail: "A visitor can hold a conversation.",
+      steps,
+    };
+  } catch (error) {
+    add("unexpected", false, String(error));
+    return { ok: false, detail: "The probe itself failed.", steps };
+  } finally {
+    // Tidy up with the service role, which is not subject to the policies
+    // being tested. Cascade takes the messages with the session.
+    if (sessionId && SERVICE_ROLE_KEY) {
+      try {
+        const { adminClient } = await import("./_shared.server");
+        await adminClient().from("chat_sessions").delete().eq("id", sessionId);
+      } catch {
+        steps.push({
+          step: "clean up",
+          ok: false,
+          detail: `The probe's conversation ${sessionId} could not be deleted; remove it from the dashboard.`,
+        });
+      }
+    }
+  }
+}
+
+/** Turn a refusal into the thing that actually needs fixing. */
+export function explainRefusal(
+  error: { message: string; code?: string; hint?: string },
+  table: string,
+  action: string,
+): string {
+  const code = error.code ?? "";
+  if (/permission denied/i.test(error.message)) {
+    return `${error.message} — this is a missing GRANT, not a policy. 0001_init.sql grants ${action} on ${table} to authenticated.`;
+  }
+  if (code === "42501" || /row-level security/i.test(error.message)) {
+    return `${error.message} — this is a missing POLICY. The schema section above names it; 0001_init.sql restores it.`;
+  }
+  if (/jwt|token/i.test(error.message)) {
+    return `${error.message} — the visitor's session was rejected, which is an auth problem rather than a schema one.`;
+  }
+  return `${error.message}${error.hint ? ` (hint: ${error.hint})` : ""}${code ? ` [${code}]` : ""}`;
+}
+
 export async function handleHealthCheck(request: Request): Promise<Response> {
   if (request.method !== "GET" && request.method !== "HEAD") {
     return json({ error: "Use GET." }, 405);
@@ -349,6 +481,10 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
   // problem, and it cannot be answered from the browser.
   const [chat, schema, email] = await Promise.all([inspectChat(), inspectSchema(), inspectEmail()]);
 
+  // Opt-in, because it writes two rows and deletes them again.
+  const wantsProbe = new URL(request.url).searchParams.get("probe") === "chat";
+  const probe = wantsProbe ? await probeChatWrite() : undefined;
+
   return json(
     {
       status: missing.length === 0 && schema.ok ? "ok" : "misconfigured",
@@ -358,6 +494,12 @@ export async function handleHealthCheck(request: Request): Promise<Response> {
       schema,
       chat,
       email,
+      ...(probe
+        ? { probe }
+        : {
+            probeHint:
+              "Add ?probe=chat to run the exact write a visitor makes, under the browser's key, and have the failing step named. It writes two rows and deletes them again.",
+          }),
       supabaseProject: SUPABASE_URL ?? null,
       mailDomain: MAIL_DOMAIN,
       missing: missing.map((entry) => ({ name: entry.name, setAnyOf: entry.accepts ?? [] })),
